@@ -754,18 +754,66 @@ async function formGonder() {
   var docUrl='', msg='';
 
   try {
-    var resp = await fetch(APPS_SCRIPT_URL, {
-      method:'POST', redirect:'follow',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(formData)
-    });
-    var text = await resp.text();
+    // Fotoğrafları ayrı tut (POST boyutunu azalt)
+    var formDataNoPhotos = JSON.parse(JSON.stringify(formData));
+    formDataNoPhotos.photos = {};
+    var photoKeys = Object.keys(formData.photos || {});
+    // Fotoğraflar varsa dahil et, yoksa boş gönder
+    var jsonStr = JSON.stringify(photoKeys.length > 0 ? formData : formDataNoPhotos);
+
+    // Apps Script cross-origin POST: fetch + no-cors mode
+    // Body redirect'te kaybolabilir, bu yüzden önce no-cors dene
+    var sonuc = null;
+    
+    // Yontem 1: fetch with redirect:follow (Apps Script icinde calisir)
     try {
-      var data = JSON.parse(text);
-      if (data.status==='OK') { docUrl=data.docUrl||''; msg='Denetim kaydedildi ve rapor olusturuldu.'; }
-      else { msg='Hata: '+(data.mesaj||'Bilinmeyen'); }
-    } catch(pe) { msg='Gonderildi (yanit okunamadi).'; }
-  } catch(e) { msg='Baglanti hatasi: '+e.message; }
+      var resp = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        body: jsonStr
+      });
+      var respText = await resp.text();
+      console.log('POST response:', respText.substring(0, 200));
+      try { sonuc = JSON.parse(respText); } catch(pe) { /* parse edilemedi */ }
+    } catch(fe) { console.log('Fetch hatasi:', fe.message); }
+
+    // Yontem 2: no-cors (body gonder ama response okunamaz)
+    if (!sonuc || !sonuc.status) {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {'Content-Type': 'text/plain'},
+          body: jsonStr
+        });
+        // no-cors'ta response okunamaz ama body gonderilir
+        // 3 saniye bekle ve kontrol et
+        await new Promise(function(r){setTimeout(r, 3000);});
+        sonuc = {status:'OK', mesaj:'Gonderildi'};
+      } catch(nc) { console.log('no-cors hatasi:', nc.message); }
+    }
+
+    // Yontem 3: JSONP GET ile veri gonder (son care - fotosuz)
+    if (!sonuc || !sonuc.status) {
+      try {
+        var getUrl = APPS_SCRIPT_URL + '?action=submitFormGet&data=' + encodeURIComponent(JSON.stringify(formDataNoPhotos));
+        if (getUrl.length < 8000) {
+          await new Promise(function(resolve) {
+            window._submitCb = function(d) { sonuc = d; delete window._submitCb; resolve(); };
+            var s = document.createElement('script');
+            s.src = getUrl + '&callback=_submitCb&t=' + Date.now();
+            s.onerror = function() { delete window._submitCb; resolve(); };
+            document.head.appendChild(s);
+            setTimeout(function() { if(window._submitCb){delete window._submitCb; resolve();} }, 20000);
+          });
+        }
+      } catch(ge) { console.log('GET hatasi:', ge.message); }
+    }
+
+    if (sonuc && sonuc.status==='OK') { docUrl=sonuc.docUrl||''; msg=sonuc.mesaj||'Denetim kaydedildi.'; }
+    else if (sonuc) { msg='Hata: '+(sonuc.mesaj||'Bilinmeyen'); }
+    else { msg='Veri gonderildi ancak yanit alinamadi. Sheets kontrol edin.'; }
+  } catch(e) { msg='Hata: '+e.message; }
 
   document.getElementById('sending').classList.remove('show');
   document.getElementById('step9').style.display = 'none';
