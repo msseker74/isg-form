@@ -1,1 +1,839 @@
 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a4b8c">
+<title>ISG Saha Denetim Formu</title>
+<link rel="manifest" href="manifest.json">
+<style>
+/* ═══ FORM SAYFA – GLOBAL ═══ */
+:root{
+  --navy:#1a4b8c;--green:#2d9e6b;--red:#e63946;--amber:#f4a100;
+  --bg:#f5f7fa;--txt:#1a2535;--mut:#6b7a90;--bdr:#d0d9e8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;min-height:100dvh}
+
+/* ═══ HEADER ═══ */
+.form-header{
+  background:linear-gradient(135deg,#1a4b8c,#2355a0);color:#fff;
+  padding:14px 16px;display:flex;align-items:center;gap:10px;
+  box-shadow:0 2px 12px rgba(26,75,140,.25);position:sticky;top:0;z-index:100;
+}
+.form-header h1{font-size:14px;font-weight:800;line-height:1.3}
+.form-header p{font-size:10px;opacity:.8;margin-top:1px}
+.form-header-ico{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+/* ═══ BAĞLANTI BARI ═══ */
+.cfg-bar{
+  background:#fff;border-bottom:2px solid var(--bdr);padding:8px 16px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.cfg-bar.ok{border-color:var(--green);background:#f0faf5}
+.cfg-bar label{font-size:10px;font-weight:700;color:var(--navy);white-space:nowrap}
+.cfg-bar.ok label{color:var(--green)}
+.cfg-bar input{
+  flex:1;min-width:180px;padding:6px 10px;border:1.5px solid var(--bdr);
+  border-radius:8px;font-size:11px;font-family:Arial,sans-serif;outline:none;
+}
+.cfg-bar input:focus{border-color:var(--navy)}
+.cfg-bar button{
+  padding:6px 12px;border-radius:8px;border:none;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:Arial,sans-serif;background:var(--navy);color:#fff;
+}
+.cfg-bar .cfg-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px}
+.cfg-bar .cfg-ok{background:rgba(45,158,107,.15);color:var(--green)}
+.cfg-bar .cfg-warn{background:rgba(244,161,0,.15);color:var(--amber)}
+
+/* ═══ DENETÇİ BİLGİ BARI ═══ */
+.denetci-bar{
+  background:#fff;border-bottom:1px solid var(--bdr);padding:8px 16px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.denetci-bar label{font-size:11px;font-weight:700;color:var(--navy)}
+.denetci-bar input{
+  flex:1;min-width:180px;padding:7px 12px;border:1.5px solid var(--bdr);
+  border-radius:8px;font-size:13px;font-family:Arial,sans-serif;outline:none;
+}
+.denetci-bar input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,75,140,.1)}
+
+/* ═══ İLERLEME ═══ */
+.prog-bar{background:#fff;border-bottom:1px solid var(--bdr);padding:8px 16px}
+.prog-track{background:#e8ecf2;border-radius:6px;height:5px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--green));border-radius:6px;transition:width .4s;will-change:width}
+.prog-info{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:11px;color:var(--mut)}
+.pills{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
+.pill{width:26px;height:26px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--mut);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.pill.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.pill.done{border-color:var(--green);background:var(--green);color:#fff}
+
+/* ═══ FORM KARTLARI ═══ */
+.f-body{padding:10px 10px 90px;max-width:900px;margin:0 auto}
+.scard{background:#fff;border-radius:12px;box-shadow:0 1px 8px rgba(26,75,140,.07);margin-bottom:10px;overflow:hidden;display:none}
+.scard.active{display:block}
+.scard-hdr{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e8ecf2;background:#fafbfd}
+.scard-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ic-blue{background:#e8f0fb}.ic-red{background:#fdecea}.ic-green{background:#e6f7f1}.ic-yellow{background:#fff8e6}.ic-purple{background:#f3f0ff}
+.scard-title{font-weight:700;font-size:13px;color:#1a2535}
+.scard-sub{font-size:10px;color:#6b7a90;margin-top:1px}
+.scard-body{padding:12px 14px}
+
+/* ═══ FORM ALANLARI ═══ */
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;font-weight:700;color:#1a2535;margin-bottom:4px}
+.field label .req{color:#e63946}
+.field input,.field select,.field textarea{
+  width:100%;padding:9px 12px;border:1.5px solid #d0d9e8;border-radius:10px;font-size:14px;color:#1a2535;font-family:Arial,sans-serif;background:#fff;transition:border-color .15s;outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1a4b8c;box-shadow:0 0 0 3px #e8f0fb}
+.field textarea{min-height:64px;resize:vertical}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field-hint{font-size:9px;color:#9aa5b8;margin-top:2px}
+
+/* ═══ TEHLİKE BUTONLARI ═══ */
+.danger-btns{display:flex;gap:6px;flex-wrap:wrap}
+.dbtn{padding:9px 14px;border-radius:9px;border:1.5px solid #d0d9e8;background:#fff;font-size:12px;font-weight:600;color:#6b7a90;cursor:pointer;font-family:Arial,sans-serif;transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.dbtn.sel-az{background:#e6f7f1;border-color:#2d9e6b;color:#2d9e6b}
+.dbtn.sel-teh{background:#fff8e6;border-color:#f4a100;color:#f4a100}
+.dbtn.sel-cok{background:#fdecea;border-color:#e63946;color:#e63946}
+
+/* ═══ PERSONEL TABLOSU ═══ */
+.ptable{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.ptable th{background:#e8f0fb;color:#1a4b8c;padding:6px 6px;text-align:center;font-size:10px;border:1px solid #d0d9e8;font-weight:700}
+.ptable td{padding:5px 6px;border:1px solid #d0d9e8;text-align:center;color:#1a2535}
+.ptable td:first-child{text-align:left;font-weight:500;font-size:11px}
+.ptable input[type=number]{width:50px;padding:5px 4px;border:1.5px solid #d0d9e8;border-radius:6px;text-align:center;font-size:13px;outline:none;font-family:Arial,sans-serif;-webkit-appearance:none}
+.ptable input[type=number]:focus{border-color:#1a4b8c}
+.tot-cell{font-weight:700;color:#1a4b8c;background:#e8f0fb}
+
+/* ═══ MADDE SATIRLARI ═══ */
+.kat-header{
+  display:grid;grid-template-columns:1fr 64px 64px 52px 64px;gap:3px;padding:6px 8px;background:#1a4b8c;
+  font-size:10px;font-weight:700;color:#fff;border-radius:8px 8px 0 0;margin-top:8px
+}
+.madde-row{
+  display:grid;grid-template-columns:1fr 64px 64px 52px 64px;gap:3px;padding:7px 8px;
+  border-bottom:1px solid #e8ecf2;align-items:center;background:#fff;transition:background .1s;flex-wrap:wrap
+}
+.madde-row .foto-alan{grid-column:1/-1}
+.madde-row:last-child{border:none;border-radius:0 0 8px 8px}
+.madde-row:hover{background:#fafbfd}
+.madde-no{font-weight:700;color:#1a4b8c;font-size:10px;margin-right:3px}
+.madde-ad{font-size:11px;color:#1a2535;line-height:1.3}
+.mcheck{
+  display:flex;align-items:center;justify-content:center;padding:6px 2px;border-radius:7px;border:1.5px solid #d0d9e8;
+  font-size:10px;font-weight:700;cursor:pointer;color:#9aa5b8;background:#fff;transition:all .12s;
+  font-family:Arial,sans-serif;text-align:center;user-select:none;min-height:34px;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+.mcheck:active{transform:scale(.95)}
+.mcheck.evet.sel{background:#e6f7f1;border-color:#2d9e6b;color:#2d9e6b}
+.mcheck.hayir.sel{background:#fdecea;border-color:#e63946;color:#e63946}
+.mcheck.eksik.sel{background:#fff8e6;border-color:#f4a100;color:#f4a100}
+.mcheck.gerekmez.sel{background:#e8ecf2;border-color:#9aa5b8;color:#6b7a90}
+
+/* ═══ FOTOĞRAF ═══ */
+.foto-alan{display:flex;flex-direction:column;gap:6px;padding:8px 8px;background:#fffbf0;border-radius:8px;border:1px dashed #f4a100;margin-top:6px;grid-column:1/-1}
+.foto-ekle-btn{background:#fff8e6;border:1.5px solid #f4a100;color:#c47a00;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;touch-action:manipulation}
+.foto-ekle-btn:hover{background:#f4a100;color:#fff}
+.foto-prev-mini{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.foto-thumb-mini{position:relative;width:54px;height:54px;border-radius:6px;overflow:hidden;border:2px solid #f4a100;cursor:pointer}
+.foto-thumb-mini img{width:100%;height:100%;object-fit:cover}
+.foto-sil-btn{position:absolute;top:1px;right:1px;background:rgba(220,30,30,.85);color:#fff;font-size:10px;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700}
+
+/* ═══ ÖZET İSTATİSTİK ═══ */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.sbox{border-radius:10px;padding:10px;text-align:center}
+.sbox.sg{background:#e6f7f1}.sbox.sr{background:#fdecea}.sbox.sy{background:#fff8e6}.sbox.sgr{background:#e8ecf2}
+.snum{font-size:24px;font-weight:800;font-family:'Arial Black',Arial,sans-serif}
+.sbox.sg .snum{color:#2d9e6b}.sbox.sr .snum{color:#e63946}.sbox.sy .snum{color:#f4a100}.sbox.sgr .snum{color:#6b7a90}
+.slbl{font-size:9px;color:#6b7a90;font-weight:600;margin-top:2px}
+.orow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #e8ecf2}
+.orow:last-child{border:none}
+.olbl{font-size:11px;color:#6b7a90;font-weight:500}
+.oval{font-size:12px;font-weight:700;color:#1a2535}
+
+/* ═══ NAVİGASYON ═══ */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8ecf2;padding:8px 12px;display:flex;gap:8px;box-shadow:0 -4px 16px rgba(26,75,140,.1);z-index:50}
+.bnav button{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;border:none;font-family:Arial,sans-serif;transition:all .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn-prev{background:#e8ecf2;color:#6b7a90}.btn-prev:active{background:#d0d9e8}
+.btn-next{background:#1a4b8c;color:#fff;box-shadow:0 2px 8px rgba(26,75,140,.3)}.btn-next:active{background:#1340a0}
+.btn-submit{background:linear-gradient(135deg,#1a4b8c,#2d9e6b);color:#fff;box-shadow:0 2px 8px rgba(45,158,107,.3)}.btn-submit:active{opacity:.88}
+
+/* ═══ BAŞARI + SPINNER ═══ */
+.success-screen{display:none;text-align:center;padding:40px 20px;background:#fff;border-radius:14px;margin:10px;box-shadow:0 4px 20px rgba(26,75,140,.1)}
+.success-screen.show{display:block}
+.s-icon{font-size:50px;margin-bottom:10px}
+.s-title{font-size:20px;font-weight:800;color:#2d9e6b;font-family:'Arial Black',Arial,sans-serif;margin-bottom:8px}
+.s-sub{color:#6b7a90;font-size:12px;line-height:1.6}
+.s-links{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.s-link{display:inline-block;padding:9px 16px;border-radius:9px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;font-size:12px;text-decoration:none}
+.s-doc{background:#e8f0fb;color:#1a4b8c;border:none}
+.sending{display:none;position:fixed;inset:0;background:rgba(255,255,255,.92);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-weight:700;color:#1a4b8c;font-size:14px}
+.sending.show{display:flex}
+.spinner{width:34px;height:34px;border:3px solid #e8f0fb;border-top-color:#1a4b8c;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══ TOAST ═══ */
+.toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#1a2336;border:1px solid rgba(99,179,237,.12);color:#f1f5f9;
+  padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;
+  z-index:9999;transition:transform .25s;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:90vw;overflow:hidden;text-overflow:ellipsis
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.t-ok{border-color:rgba(52,211,153,.4);color:#34d399}
+.toast.t-err{border-color:rgba(248,113,113,.4);color:#f87171}
+.toast.t-warn{border-color:rgba(251,191,36,.4);color:#fbbf24}
+
+.okul-info-preview{background:#e8f0fb;border-radius:9px;padding:8px 12px;margin-top:6px;font-size:11px;color:#1a4b8c;display:none}
+.okul-info-preview.show{display:block}
+.okul-info-row{display:flex;gap:6px;margin-bottom:2px}
+.oip-lbl{font-weight:700;min-width:70px}
+
+/* ═══ YATAY MOD ═══ */
+@media(orientation:landscape) and (max-height:500px){
+  .form-header{padding:6px 12px}
+  .form-header h1{font-size:12px}
+  .form-header p{display:none}
+  .form-header-ico{width:28px;height:28px;font-size:14px}
+  .denetci-bar,.cfg-bar{padding:4px 12px}
+  .prog-bar{padding:4px 12px}
+  .pill{width:20px;height:20px;font-size:8px}
+  .f-body{padding:6px 6px 70px}
+  .bnav{padding:4px 8px}
+  .bnav button{padding:8px;font-size:11px}
+}
+
+/* ═══ KÜÇÜK EKRAN ═══ */
+@media(max-width:420px){
+  .field-row{grid-template-columns:1fr}
+  .kat-header{grid-template-columns:1fr 52px 52px 44px 52px;font-size:9px}
+  .madde-row{grid-template-columns:1fr 52px 52px 44px 52px}
+  .mcheck{font-size:8px;min-height:30px;padding:4px 1px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="form-header">
+  <div class="form-header-ico">🛡️</div>
+  <div>
+    <h1>ISG Saha Denetim Formu</h1>
+    <p>Sehitkamil Ilce Milli Egitim Mudurlugu</p>
+  </div>
+</div>
+
+<!-- ═══ BAĞLANTI BARI ═══ -->
+<div class="cfg-bar" id="cfgBar">
+  <label id="cfgLbl">Baglanti:</label>
+  <input type="text" id="cfgInput" placeholder="Apps Script URL yapistirin">
+  <button onclick="cfgKaydet()">Kaydet</button>
+  <span class="cfg-status cfg-warn" id="cfgStatus">URL gerekli</span>
+</div>
+
+<!-- ═══ DENETÇİ BARI ═══ -->
+<div class="denetci-bar">
+  <label>Denetci:</label>
+  <input type="text" id="denetciAdi" placeholder="Ad Soyad">
+</div>
+
+<!-- ═══ İLERLEME ═══ -->
+<div class="prog-bar">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:10%"></div></div>
+  <div class="prog-info"><span id="progLbl">Adim 1 / 10</span><span id="progPct">10%</span></div>
+  <div class="pills">
+    <div class="pill active" id="pill0" onclick="goStep(0)">1</div>
+    <div class="pill" id="pill1" onclick="goStep(1)">2</div>
+    <div class="pill" id="pill2" onclick="goStep(2)">3</div>
+    <div class="pill" id="pill3" onclick="goStep(3)">4</div>
+    <div class="pill" id="pill4" onclick="goStep(4)">5</div>
+    <div class="pill" id="pill5" onclick="goStep(5)">6</div>
+    <div class="pill" id="pill6" onclick="goStep(6)">7</div>
+    <div class="pill" id="pill7" onclick="goStep(7)">8</div>
+    <div class="pill" id="pill8" onclick="goStep(8)">9</div>
+    <div class="pill" id="pill9" onclick="goStep(9)">10</div>
+  </div>
+</div>
+
+<!-- ═══ FORM İÇERİĞİ ═══ -->
+<div class="f-body" id="fScroll">
+  <div class="scard active" id="step0">
+    <div class="scard-hdr"><div class="scard-ico ic-blue">🏫</div><div><div class="scard-title">Okul / Kurum Bilgileri</div><div class="scard-sub">Temel bilgileri doldurun</div></div></div>
+    <div class="scard-body">
+      <div class="field">
+        <label>Okul / Kurum Adi <span class="req">*</span></label>
+        <input type="text" id="okulAdi" placeholder="Okul adini yaziniz" autocomplete="off">
+        <select id="okulSec" style="margin-top:6px" onchange="okulSecimChanged()"><option value="">-- Listeden secin --</option></select>
+        <div id="okulInfoPreview" class="okul-info-preview"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Denetim Tarihi <span class="req">*</span></label><input type="date" id="denetimTarihi"></div>
+        <div class="field"><label>Tehlike Sinifi</label>
+          <div class="danger-btns">
+            <button type="button" class="dbtn" onclick="tehlikeAyarla(this,'Az Tehlikeli')">Az Teh.</button>
+            <button type="button" class="dbtn" onclick="tehlikeAyarla(this,'Tehlikeli')">Tehlikeli</button>
+            <button type="button" class="dbtn" onclick="tehlikeAyarla(this,'Cok Tehlikeli')">Cok Teh.</button>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Mudur Adi</label><input type="text" id="mudurAdi" placeholder="Ad Soyad"></div>
+        <div class="field"><label>Telefon</label><input type="tel" id="mudurTel" placeholder="05XX XXX XX XX"></div>
+      </div>
+      <div class="field"><label>Adres</label><input type="text" id="okulAdres" placeholder="Okul adresi"></div>
+      <div class="field-row">
+        <div class="field"><label>Ogrenci Sayisi</label><input type="number" id="ogrenciSayi" min="0" value="0"></div>
+        <div class="field"><label>Cirak/Stajyer</label><input type="number" id="cirakSayi" min="0" value="0"></div>
+      </div>
+      <div class="field">
+        <label>Personel Dagilimi</label>
+        <table class="ptable">
+          <thead><tr><th>Grup</th><th>Kadrolu</th><th>Kadrosuz</th><th>Toplam</th></tr></thead>
+          <tbody>
+            <tr><td>Ogretmen</td><td><input type="number" min="0" value="0" oninput="ptHesap(this,0)"></td><td><input type="number" min="0" value="0" oninput="ptHesap(this,0)"></td><td class="tot-cell" id="pt0">0</td></tr>
+            <tr><td>Memur</td><td><input type="number" min="0" value="0" oninput="ptHesap(this,1)"></td><td><input type="number" min="0" value="0" oninput="ptHesap(this,1)"></td><td class="tot-cell" id="pt1">0</td></tr>
+            <tr><td>Hizmetli</td><td><input type="number" min="0" value="0" oninput="ptHesap(this,2)"></td><td><input type="number" min="0" value="0" oninput="ptHesap(this,2)"></td><td class="tot-cell" id="pt2">0</td></tr>
+            <tr><td>Guvenlik</td><td><input type="number" min="0" value="0" oninput="ptHesap(this,3)"></td><td><input type="number" min="0" value="0" oninput="ptHesap(this,3)"></td><td class="tot-cell" id="pt3">0</td></tr>
+            <tr><td>Diger</td><td><input type="number" min="0" value="0" oninput="ptHesap(this,4)"></td><td><input type="number" min="0" value="0" oninput="ptHesap(this,4)"></td><td class="tot-cell" id="pt4">0</td></tr>
+            <tr style="background:#f5f7fa;font-weight:700"><td><strong>Toplam</strong></td><td class="tot-cell" id="kadroTot">0</td><td class="tot-cell" id="kadrosuzTot">0</td><td class="tot-cell" id="genelTot">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="scard" id="step1"></div>
+  <div class="scard" id="step2"></div>
+  <div class="scard" id="step3"></div>
+  <div class="scard" id="step4"></div>
+  <div class="scard" id="step5"></div>
+  <div class="scard" id="step6"></div>
+  <div class="scard" id="step7"></div>
+  <div class="scard" id="step8"></div>
+
+  <div class="scard" id="step9">
+    <div class="scard-hdr"><div class="scard-ico ic-green">📊</div><div><div class="scard-title">Denetim Ozeti</div><div class="scard-sub">Kontrol edin ve gonderin</div></div></div>
+    <div class="scard-body">
+      <div class="orow"><span class="olbl">Okul</span><span class="oval" id="ozOkul">—</span></div>
+      <div class="orow"><span class="olbl">Tarih</span><span class="oval" id="ozTarih">—</span></div>
+      <div class="orow"><span class="olbl">Denetci</span><span class="oval" id="ozDenetci">—</span></div>
+      <div class="orow"><span class="olbl">Mudur</span><span class="oval" id="ozMudur">—</span></div>
+      <div class="orow"><span class="olbl">Tehlike</span><span class="oval" id="ozTehlike">—</span></div>
+      <div class="orow"><span class="olbl">Islenen</span><span class="oval" id="ozIslenen">— / 138</span></div>
+      <div class="stat-grid">
+        <div class="sbox sg"><div class="snum" id="sEvet">0</div><div class="slbl">Evet/Var</div></div>
+        <div class="sbox sr"><div class="snum" id="sHayir">0</div><div class="slbl">Hayir/Yok</div></div>
+        <div class="sbox sy"><div class="snum" id="sEksik">0</div><div class="slbl">Eksik</div></div>
+        <div class="sbox sgr"><div class="snum" id="sGer">0</div><div class="slbl">Gerekmez</div></div>
+      </div>
+      <div style="background:#f0f4fb;border-radius:8px;padding:10px;font-size:11px;color:#1a4b8c;margin-top:10px"><span id="fotoOzetMesaj">Fotograf eklemek icin Hayir/Yok veya Eksik sectiginiz maddelerde butonunu kullanin.</span></div>
+      <div id="photoPrev"></div>
+      <div class="field" style="margin-top:12px"><label>Tespit ve Oneriler</label><textarea id="tespitler" placeholder="Genel tespitler..."></textarea></div>
+      <div class="field"><label>Okul Muduru (Imzalayan)</label><input type="text" id="imzaMudur" placeholder="Ad Soyad"></div>
+    </div>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="s-icon">✅</div>
+    <div class="s-title">Denetim Kaydedildi!</div>
+    <p class="s-sub" id="successMsg">Veriler sisteme kaydedildi.</p>
+    <div class="s-links" id="successLinks"></div>
+    <button style="margin-top:14px;padding:11px 20px;background:#1a4b8c;color:#fff;border-radius:10px;font-weight:700;cursor:pointer;border:none;font-size:13px" onclick="yeniDenetimBaslat()">Yeni Denetim Baslat</button>
+  </div>
+</div>
+
+<div class="bnav" id="bnav">
+  <button class="btn-prev" id="btnPrev" onclick="prevStep()" style="display:none">Geri</button>
+  <button class="btn-next" id="btnNext" onclick="nextStep()">Devam</button>
+  <button class="btn-submit" id="btnSubmit" onclick="formGonder()" style="display:none">Gonderi</button>
+</div>
+
+<div class="sending" id="sending"><div class="spinner"></div><div id="sendingMsg">Kaydediliyor...</div></div>
+<div class="toast" id="toastEl"></div>
+
+
+<script>
+// ═══ BAĞLANTI ═══
+var APPS_SCRIPT_URL = '';
+try { APPS_SCRIPT_URL = localStorage.getItem('ISG_FORM_URL') || ''; } catch(e) {}
+
+function cfgKaydet() {
+  var v = document.getElementById('cfgInput').value.trim();
+  if (!v || !v.startsWith('https://')) { toast('Gecerli URL girin', 't-err'); return; }
+  APPS_SCRIPT_URL = v;
+  try { localStorage.setItem('ISG_FORM_URL', v); } catch(e) {}
+  document.getElementById('cfgBar').classList.add('ok');
+  document.getElementById('cfgLbl').textContent = 'Bagli:';
+  document.getElementById('cfgStatus').className = 'cfg-status cfg-ok';
+  document.getElementById('cfgStatus').textContent = 'Tamam';
+  toast('URL kaydedildi', 't-ok');
+  setTimeout(okulListesiYukle, 300);
+}
+
+function cfgBaslat() {
+  if (APPS_SCRIPT_URL) {
+    document.getElementById('cfgInput').value = APPS_SCRIPT_URL;
+    document.getElementById('cfgBar').classList.add('ok');
+    document.getElementById('cfgLbl').textContent = 'Bagli:';
+    document.getElementById('cfgStatus').className = 'cfg-status cfg-ok';
+    document.getElementById('cfgStatus').textContent = 'Tamam';
+    setTimeout(okulListesiYukle, 300);
+  }
+}
+
+const MADDELER = {
+  A:{title:"A – İSG ÇALIŞMALARINI KAYIT ALTINA ALMA VE BİLDİRİM",items:[
+    {no:1,ad:"İSG Dosyalama Klasör Sistemi"},{no:2,ad:"Yıllık çalışma planı"},
+    {no:3,ad:"Tespit ve Öneri Defteri Kullanımı"},{no:4,ad:"İSG Duyuru ve Bilg.Panosu"},
+    {no:5,ad:"Ramak Kala Kayıtlarının Tutulması"},{no:6,ad:"İş Kazalarının Bildirimi"},
+    {no:7,ad:"Çalışanların İsg Çalışmaları Hakkında Bilgilendirilmesi"},
+    {no:8,ad:"Yıllık Değerlendirme Raporu"},
+    {no:9,ad:"İSG Talimatların İlgili çalışanlara tebliği"},
+    {no:10,ad:"SGK Sicil numarasında kayıtlı çalışanların Özlük dosyası"}
+  ]},
+  B:{title:"B – ACİL DURUMLAR",items:[
+    {no:11,ad:"Acil Durum Eylem Planı"},{no:12,ad:"Acil Durum Ekipleri oluşturma ve güncelleme"},
+    {no:13,ad:"Kat Kaçış Tahliye Planı"},{no:14,ad:"Acil durum tatbikatları yapılması ve MEBBIS'e girişi"},
+    {no:15,ad:"Acil Toplanma Alanının Belirlenmesi"},{no:16,ad:"Acil çıkış yönlendirme levhaları"},
+    {no:17,ad:"Yangın ve Acil çıkış kapılarının standartlara uygunluğu"},
+    {no:18,ad:"Acil çıkış yollarında Acil durum aydınlatması"},{no:19,ad:"Yangın Merdiveni Durumu"},
+    {no:20,ad:"Ana Bina Girişi Acil Durum Butonu"},
+    {no:21,ad:"Acil çıkış yolları ve kapı önlerine çıkışı engelleyecek malzeme"}
+  ]},
+  C:{title:"C – RİSK DEĞERLENDİRMESİ",items:[
+    {no:22,ad:"Risk Değerlendirme Ekibi Görevlendirme"},
+    {no:23,ad:"Çalışan Temsilcisi Görevlendirme"},
+    {no:24,ad:"Risk Değerlendirme Kontrol listeleri"},
+    {no:25,ad:"Risk Değerlendirmesi Analizi, MEBBİS'e girişi ve Güncellenmesi"},
+    {no:26,ad:"Risk Değerlendirme Düzeltici Faaliyet (DF) Raporu Düzenleme"}
+]},
+  D:{title:"D – İSG KURULU",items:[
+    {no:27,ad:"İSG Kurulu Görevlendirme Formu"},
+    {no:28,ad:"İSG Kurul Toplantı Tutanağı"},
+    {no:29,ad:"İSG Kurulu Karar Defteri"},
+    {no:30,ad:"İsg Kurul Protokolü"},
+    {no:31,ad:"Kurum İSG İç Yönerge Hazırlanmış"}
+]},
+  E:{title:"E – EĞİTİMLER",items:[
+    {no:32,ad:"Tüm Çalışanların Temel İSG Eğitimleri"},{no:33,ad:"Risk Değerlendirme Ekibi Eğitimi"},
+    {no:34,ad:"İSG Kurul Üyeleri Eğitimi"},{no:35,ad:"Çalışanlara KKD Eğitimi"},
+    {no:36,ad:"Acil Durum Ekipleri Eğitimi"},{no:37,ad:"Çırak/Stajyer Öğrencilerin İSG Eğitimleri"},
+    {no:38,ad:"Çalışan Temsilcileri Eğitimi"},
+    {no:39,ad:"Yeni Çalışanın İşe başlama ve Oryantasyon Eğitimleri"},
+    {no:40,ad:"Gıda ve Temizlik Çalışmalarında Hijyen Eğitimi"},{no:41,ad:"İlk Yardımcı Eğitimi"}
+  ]},
+  F:{title:"F – PERİYODİK KONTROL ve BAKIM",items:[
+    {no:42,ad:"Yangın tüpleri periyodik kontrol ve bakımı"},{no:43,ad:"Asansörün periyodik kontrolü ve bakımı"},
+    {no:44,ad:"Basınçlı kapların periyodik kontrolü ve bakımı"},
+    {no:45,ad:"Elektrik Tesisatı ve Ana Pano Periyodik Kontrolü ve Bakımı"},
+    {no:46,ad:"Paratonerin Periyodik Kontrol ve Bakımı"},
+    {no:47,ad:"Topraklama Tesisatı Periyodik Kontrolü ve Bakımı"},
+    {no:48,ad:"Jeneratörün periyodik kontrolü ve bakımı"},{no:49,ad:"Klima Periyodik Kontrolü ve Bakımı"},
+    {no:50,ad:"Baca temizliği/kontrolü"},{no:51,ad:"İçme suyu analizleri"},{no:52,ad:"Su Deposu temizliği"},
+    {no:53,ad:"Kalorifer Kazanı/Kombi Periyodik Kontrolü ve Bakımı"},
+    {no:54,ad:"Kazan Dairesi Hidrofor Periyodik Kontrolleri"},
+    {no:55,ad:"Makine-Tezgah Periyodik Bakımları ve Bakım Kartları"},
+    {no:56,ad:"Çalışanların İşe Giriş ve Periyodik Sağlık Muayeneleri"},
+    {no:57,ad:"Elektrikli İş Ekipmanlarının Periyodik Kontrolü ve Bakımı"}
+  ]},
+  G:{title:"G – YANGIN ÖNLEMLERİ",items:[
+    {no:58,ad:"Yangın algılama, alarm butonları ve duman sensörü çalışır durumda"},
+    {no:59,ad:"Yangın dolapları mevzuata uygun"},
+    {no:60,ad:"Yangın tüpü sayısı yeterli, yeri ve seviyesi uygun"},
+    {no:61,ad:"Yangın Önleme ve Söndürme talimatları görülebilir yerde bulunuyor"},
+    {no:62,ad:"Pansiyonlu Okullarda yağmurlama sistemi mevcut"},
+    {no:63,ad:"Sulu Söndürme Sistemleri için ayrılmış uygun su deposu var"},
+    {no:64,ad:"Kantin içerisinde uygun yangın söndürme cihazı var"},
+    {no:65,ad:"Kazan dairesinde uygun yangın söndürücü sistem / tertibat var"},
+    {no:66,ad:"Kazan dairesinde gaz dedektörleri uygun yerlere asılmış ve çalışıyor"},
+    {no:67,ad:"Elektrik Odası uygun yangın söndürme cihazı var"},
+    {no:68,ad:"Binaların taban alanları 5000 m²'yi geçiyor ise hidrant sistemi var"}
+  ]},
+  H:{title:"H – ELEKTRİK ÖNLEMLERİ",items:[
+    {no:69,ad:"Ana elektrik dağıtım odası uygun"},
+    {no:70,ad:"Elektrik panolarında kaçak akım rölesi ve uyarı levhası var"},
+    {no:71,ad:"Ana Elektrik panolarının önünde izole paspas konmuş"},
+    {no:72,ad:"Elektrik panosundaki sigorta şartellerinin işaretlenmesi var"},
+    {no:73,ad:"Trafo binası güvenliği uygun"},
+    {no:74,ad:"Elektrik Tesisat Kat Planı Elektrik Panosunun yanına asılmış"},
+    {no:75,ad:"Jeneratör acil durum elemanlarına bağlantı yapılmış ve yeri Uygun"},
+    {no:76,ad:"Elektrik Atölye Uygun Taban İzolasyonu var"},{no:77,ad:"Makine Gövde Topraklama Hattı var"},
+    {no:78,ad:"Prizler Çocuk Korumalı"},{no:79,ad:"Elektrik Kabloların kapalı kanal içerisinden geçirilmesi"}
+  ]},
+  I:{title:"I – GENEL ORTAM GÖZETİMİ",items:[
+    {no:80,ad:"Okul çatılarının yanıcı, parlayıcı, patlayıcı malzemelerden arındırılması"},
+    {no:81,ad:"Çatı saç ve kiremitlerinin sağlamlaştırılması"},{no:82,ad:"Çatı aralarına elektrik tesisatı çekilmemesi"},
+    {no:83,ad:"Çatı araları biriken kuş gübrelerinin temizlenmesi"},
+    {no:84,ad:"Kazan dairesi depo olarak kullanılmıyor"},{no:85,ad:"Kazan dairesi acil butonu çalışıyor"},
+    {no:86,ad:"Kalorifer dairesi işletme talimatı görünür bir alana asılmış"},
+    {no:87,ad:"Kazan Dairesi Sorumlu Personelin Ateşleyici Belgesi var"},
+    {no:88,ad:"Kazan dairesi acil çıkış kapısı uygun"},{no:89,ad:"Kazan Dairesinde Havalandırma ve Aydınlatma yeterli"},
+    {no:90,ad:"Kazan Dairesinde kablo tesisatları exproof malzemelerden yapılmış"},
+    {no:91,ad:"Kazan dairesinde boru hatları işaretlenmiş"},
+    {no:92,ad:"Bahçe giriş kapısı kilit sistemi ve makaralar uygun"},
+    {no:93,ad:"Bahçe içinde güvenli park alanı oluşturulmuş"},
+    {no:94,ad:"İhata duvarları tehlike yaratmayacak şekilde düzenlenmiş"},
+    {no:95,ad:"Bahçedeki ağaçlara karşı tedbir alınmış"},{no:96,ad:"Engelli rampaları mevzuata uygun"},
+    {no:97,ad:"Voleybol-basketbol direkleri devrilmeye karşı güvenli"},
+    {no:98,ad:"Rögar Kapağı ve Fosseptik güvenlik önlemi alınmış"},{no:99,ad:"Çalışanlar uygun KKD'lerini kullanıyor"},
+    {no:100,ad:"Kurum Sağlık ve Güvenlik İşaretleri Yönetmeliği'ne uygun"},
+    {no:101,ad:"Tehlikeli kimyasal madde etiketleme/kilitleme yapılmış"},
+    {no:102,ad:"Türkçe malzeme güvenlik bilgi formları var"},
+    {no:103,ad:"Çöp kovaları hijyenik ve kapaklı"},{no:104,ad:"Tuvaletlerde Güncel Günlük temizlik çizelgesi var"},
+    {no:105,ad:"Temizlik malzemeleri kilitli yerde tutuluyor"},
+    {no:106,ad:"Tuvalet lavabo taşları devrilmelere karşı sağlamlaştırılmış"},
+    {no:107,ad:"Tuvaletlerin fiziki ortamları uygun ve hijyenik"},
+    {no:108,ad:"Makine Acil Durdurma Butonu/Sensör var"},{no:109,ad:"Makine Korucu muhafaza var"},
+    {no:110,ad:"Atölyede Genel tertip düzen uygun"},{no:111,ad:"Atölyelerde Uygun KKD kullanılıyor"},
+    {no:112,ad:"Basınçlı Kaplar ve tüpler tecrit edilmiş"},
+    {no:113,ad:"Rampaların eğimi, zemini ve korkulukları uygun"},{no:114,ad:"Basamak bulunan merdivende trabzan var"},
+    {no:115,ad:"Merdivenlerdeki korkuluk yüksekliği ve aralıkları uygun"},
+    {no:116,ad:"İlkyardım dolabı malzemesi yeterli ve uygun yere konmuş"},
+    {no:117,ad:"Tüm bina ve eklentilerinde dolaplar emniyetli şekilde sabit"},
+    {no:118,ad:"Dışa açılan kapılar için çarpmaya karşı dış alan işaretli"},
+    {no:119,ad:"Pencerelerden düşme için önlem alınmış"},
+    {no:120,ad:"Sınıf ve diğer alanlarda sivri uçlu malzemeler izole edilmiş"},
+    {no:121,ad:"Depo istifleme kurallarına uyulmuş"},{no:122,ad:"Zeminde bozulma-yer seviyesi farkı için önlem alınmış"},
+    {no:123,ad:"Merdiven boşlukları güvenli"},{no:124,ad:"Merdivenlerde kaydırmaz bant var"},
+    {no:125,ad:"İşyerinin tüm alanlarında gerekli havalandırma şartları sağlanmış"},
+    {no:126,ad:"İşyerinin tüm alanlarında gerekli termal konfor şartları sağlanmış"},
+    {no:127,ad:"İşyerinin tüm alanlarında gerekli aydınlatma şartları sağlanmış"},
+    {no:128,ad:"İşyerinde Engelli Çalışanlar için düzenlemeler yapılmış"},
+    {no:129,ad:"Mutfak ve Kantin çalışanların hijyen eğitimi"},
+    {no:130,ad:"Mutfak ve Kantin çalışanların temizlik ve KKD kullanımı uygun"},
+    {no:131,ad:"Kantin Denetim Komisyonu Tarafından Denetimlenir"},
+    {no:132,ad:"Mutfakta çapraz bulaş riskine karşı gerekli önlemler alınmış"},
+    {no:133,ad:"Mutfakta gıda maddelerinin saklanması için ayrılmış alanlar uygun"},
+    {no:134,ad:"Yemek numuneleri mevzuat doğrultusunda uygun şekilde saklanıyor"},
+    {no:135,ad:"Gaz algılama sensörü ve otomatik yangın söndürme sistemi var"},
+    {no:136,ad:"Gıda üretilen alanlar fiziki olarak ayrılmış"},
+    {no:137,ad:"Spor salonunda duvar-kolon-direklerin yumuşak malzeme ile kaplanması"},
+    {no:138,ad:"Toplantı-spor salonu-yemekhane gibi alanlarda acil çıkış kapısı var"}
+  ]}
+};
+
+// ═══ FORM SABİTLERİ ═══
+var KAT_STEP  = {A:1,B:2,C:3,D:3,E:4,F:5,G:6,H:7,I:8};
+var KAT_ICO   = {A:'ic-blue',B:'ic-red',C:'ic-yellow',D:'ic-blue',E:'ic-green',F:'ic-blue',G:'ic-red',H:'ic-yellow',I:'ic-green'};
+var KAT_EMOJI = {A:'📁',B:'🚨',C:'⚖️',D:'👥',E:'🎓',F:'🔧',G:'🔥',H:'⚡',I:'🏢'};
+var answers   = {};
+var photos    = {};
+var TOTAL_STEPS = 10;
+var currentStep = 0;
+var selectedTehlike = '';
+var okulListesi = [];
+
+function toast(msg, cls) {
+  var el = document.getElementById('toastEl');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast ' + (cls||'') + ' show';
+  setTimeout(function(){ el.classList.remove('show'); }, 3000);
+}
+
+function buildForms() {
+  Object.entries(MADDELER).forEach(function(entry) {
+    var kat = entry[0], data = entry[1];
+    var stepId = KAT_STEP[kat];
+    var container = document.getElementById('step' + stepId);
+    if (!container) return;
+    if (!container.querySelector('.scard-hdr')) {
+      var hdr = document.createElement('div');
+      hdr.className = 'scard-hdr';
+      hdr.innerHTML = '<div class="scard-ico ' + KAT_ICO[kat] + '">' + KAT_EMOJI[kat] + '</div><div><div class="scard-title">' + data.title + '</div><div class="scard-sub">' + data.items.length + ' madde</div></div>';
+      container.appendChild(hdr);
+    }
+    var thead = document.createElement('div');
+    thead.className = 'kat-header';
+    thead.innerHTML = '<div>' + data.title + '</div><div style="text-align:center">Evet</div><div style="text-align:center">Hayir</div><div style="text-align:center">Eksik</div><div style="text-align:center">G.D.</div>';
+    container.appendChild(thead);
+    data.items.forEach(function(item) {
+      var row = document.createElement('div');
+      row.className = 'madde-row';
+      row.dataset.no = item.no;
+      row.innerHTML = '<div><span class="madde-no">' + item.no + '.</span> <span class="madde-ad">' + item.ad + '</span></div>' +
+        '<div class="mcheck evet" onclick="secim(this,' + item.no + ',\'Evet/Var\')">Evet</div>' +
+        '<div class="mcheck hayir" onclick="secim(this,' + item.no + ',\'Hayır/Yok\')">Hayir</div>' +
+        '<div class="mcheck eksik" onclick="secim(this,' + item.no + ',\'Eksik\')">Eksik</div>' +
+        '<div class="mcheck gerekmez" onclick="secim(this,' + item.no + ',\'Gerekli Değil\')">G.D.</div>';
+      container.appendChild(row);
+    });
+  });
+}
+
+function secim(el, no, val) {
+  var row = el.closest('.madde-row');
+  row.querySelectorAll('.mcheck').forEach(function(c){ c.classList.remove('sel'); });
+  el.classList.add('sel');
+  answers[no] = val;
+  var fotoDiv = row.querySelector('.foto-alan');
+  if (val === 'Hayır/Yok' || val === 'Eksik') {
+    if (!fotoDiv) {
+      fotoDiv = document.createElement('div');
+      fotoDiv.className = 'foto-alan';
+      fotoDiv.innerHTML = '<button type="button" class="foto-ekle-btn" onclick="fotoSec(' + no + ')">Foto Ekle</button><input type="file" accept="image/*" multiple style="display:none" id="fotoInp_' + no + '" onchange="fotoYukle(' + no + ',this)"><div class="foto-prev-mini" id="fotoPrevMini_' + no + '"></div>';
+      row.appendChild(fotoDiv);
+    }
+    fotoDiv.style.display = 'flex';
+  } else {
+    if (fotoDiv) fotoDiv.style.display = 'none';
+  }
+}
+
+function fotoSec(no) { var inp = document.getElementById('fotoInp_' + no); if (inp) inp.click(); }
+
+function fotoYukle(no, inp) {
+  if (!photos[no]) photos[no] = [];
+  var kalan = 5 - photos[no].length;
+  var dosyalar = Array.from(inp.files).slice(0, Math.max(0, kalan));
+  if (!dosyalar.length) { toast('Max 5 foto', 't-warn'); return; }
+  var yuklenen = 0;
+  dosyalar.forEach(function(dosya) {
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var img = new Image();
+      img.onload = function() {
+        var w = Math.min(img.width, 1200);
+        var h = Math.round(img.height * w / img.width);
+        var cnv = document.createElement('canvas');
+        cnv.width = w; cnv.height = h;
+        cnv.getContext('2d').drawImage(img, 0, 0, w, h);
+        photos[no].push(cnv.toDataURL('image/jpeg', 0.75));
+        yuklenen++;
+        if (yuklenen === dosyalar.length) fotoPrevGuncelle(no);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(dosya);
+  });
+  inp.value = '';
+}
+
+function fotoPrevGuncelle(no) {
+  var prev = document.getElementById('fotoPrevMini_' + no);
+  if (!prev) return;
+  var arr = photos[no] || [];
+  prev.innerHTML = arr.map(function(src, i) {
+    return '<div class="foto-thumb-mini"><img src="' + src + '"><span class="foto-sil-btn" onclick="fotoSil(' + no + ',' + i + ')">x</span></div>';
+  }).join('');
+}
+
+function fotoSil(no, idx) {
+  if (photos[no]) { photos[no].splice(idx, 1); if (!photos[no].length) delete photos[no]; fotoPrevGuncelle(no); }
+}
+
+function goStep(n) { if (n > currentStep) return; currentStep = n; updateUI(); window.scrollTo({top:0,behavior:'smooth'}); }
+function nextStep() { if (currentStep < TOTAL_STEPS-1) { currentStep++; updateUI(); window.scrollTo({top:0,behavior:'smooth'}); } }
+function prevStep() { if (currentStep > 0) { currentStep--; updateUI(); window.scrollTo({top:0,behavior:'smooth'}); } }
+
+function updateUI() {
+  for (var i = 0; i < TOTAL_STEPS; i++) {
+    var c = document.getElementById('step' + i);
+    if (c) c.classList.toggle('active', i === currentStep);
+    var p = document.getElementById('pill' + i);
+    if (p) { p.classList.remove('active','done'); if (i === currentStep) p.classList.add('active'); else if (i < currentStep) p.classList.add('done'); }
+  }
+  var pct = Math.round(((currentStep+1)/TOTAL_STEPS)*100);
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progLbl').textContent = 'Adim ' + (currentStep+1) + ' / ' + TOTAL_STEPS;
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('btnPrev').style.display = currentStep > 0 ? 'block' : 'none';
+  var last = currentStep === TOTAL_STEPS - 1;
+  document.getElementById('btnNext').style.display = last ? 'none' : 'block';
+  document.getElementById('btnSubmit').style.display = last ? 'block' : 'none';
+  if (last) ozetGuncelle();
+}
+
+function tehlikeAyarla(el, val) {
+  document.querySelectorAll('.dbtn').forEach(function(b){ b.className = 'dbtn'; });
+  selectedTehlike = val;
+  if (val === 'Az Tehlikeli') el.classList.add('sel-az');
+  else if (val === 'Tehlikeli') el.classList.add('sel-teh');
+  else el.classList.add('sel-cok');
+}
+
+function ptHesap(inp, row) {
+  var tr = inp.closest('tr');
+  var ins = tr.querySelectorAll('input[type=number]');
+  document.getElementById('pt' + row).textContent = (parseInt(ins[0].value)||0) + (parseInt(ins[1].value)||0);
+  var k=0, ks=0;
+  for (var i=0; i<=4; i++) {
+    var r = document.querySelectorAll('.ptable tbody tr')[i];
+    var is2 = r.querySelectorAll('input');
+    k += parseInt(is2[0].value)||0; ks += parseInt(is2[1].value)||0;
+  }
+  document.getElementById('kadroTot').textContent = k;
+  document.getElementById('kadrosuzTot').textContent = ks;
+  document.getElementById('genelTot').textContent = k + ks;
+}
+
+function ozetGuncelle() {
+  document.getElementById('ozOkul').textContent = document.getElementById('okulAdi').value || '—';
+  document.getElementById('ozTarih').textContent = document.getElementById('denetimTarihi').value || '—';
+  document.getElementById('ozDenetci').textContent = document.getElementById('denetciAdi').value || '—';
+  document.getElementById('ozMudur').textContent = document.getElementById('mudurAdi').value || '—';
+  document.getElementById('ozTehlike').textContent = selectedTehlike || '—';
+  var e=0,h=0,ex=0,g=0;
+  Object.values(answers).forEach(function(v){ if(v==='Evet/Var')e++; else if(v==='Hayır/Yok')h++; else if(v==='Eksik')ex++; else if(v==='Gerekli Değil')g++; });
+  document.getElementById('ozIslenen').textContent = (e+h+ex+g) + ' / 138';
+  document.getElementById('sEvet').textContent = e;
+  document.getElementById('sHayir').textContent = h;
+  document.getElementById('sEksik').textContent = ex;
+  document.getElementById('sGer').textContent = g;
+  var fk = Object.keys(photos), ft = Object.values(photos).reduce(function(s,a){return s+a.length;},0);
+  var el2 = document.getElementById('fotoOzetMesaj');
+  if (el2) el2.innerHTML = fk.length > 0 ? fk.length + ' madde icin ' + ft + ' foto eklendi.' : 'Henuz foto eklenmedi.';
+}
+
+function okulTuruBul(ad) {
+  var a = (ad||'').toUpperCase();
+  if (a.indexOf('ORTAOKUL')>=0) return 'Ortaokul';
+  if (a.indexOf('ILKOKUL')>=0||a.indexOf('İLKOKUL')>=0) return 'Ilkokul';
+  if (a.indexOf('LISE')>=0||a.indexOf('LİSE')>=0||a.indexOf('ANADOLU')>=0||a.indexOf('MESLEK')>=0||a.indexOf('İMAM')>=0) return 'Lise';
+  if (a.indexOf('ANAOKUL')>=0) return 'Anaokul';
+  return 'Diger';
+}
+
+async function formGonder() {
+  var okulAdi = (document.getElementById('okulAdi').value||'').trim();
+  if (!okulAdi) { toast('Okul adi girin', 't-warn'); return; }
+  if (!document.getElementById('denetimTarihi').value) { toast('Tarih secin', 't-warn'); return; }
+  var denetciAdi = (document.getElementById('denetciAdi').value||'').trim();
+  if (!denetciAdi) { toast('Denetci adi girin', 't-warn'); return; }
+  if (!APPS_SCRIPT_URL) { toast('Baglanti URL kaydedin', 't-warn'); return; }
+
+  var hayir = Object.values(answers).filter(function(v){return v==='Hayır/Yok';}).length;
+  var eksik = Object.values(answers).filter(function(v){return v==='Eksik';}).length;
+  var katSayac = {A:0,B:0,C:0,D:0,E:0,F:0,G:0,H:0,I:0};
+  Object.entries(answers).forEach(function(e2){
+    var no=e2[0],val=e2[1];
+    if(val!=='Hayır/Yok'&&val!=='Eksik')return;
+    var n=parseInt(no);
+    if(n<=10)katSayac.A++;else if(n<=21)katSayac.B++;else if(n<=26)katSayac.C++;
+    else if(n<=31)katSayac.D++;else if(n<=41)katSayac.E++;else if(n<=57)katSayac.F++;
+    else if(n<=68)katSayac.G++;else if(n<=98)katSayac.H++;else katSayac.I++;
+  });
+
+  var ptRows = document.querySelectorAll('.ptable tbody tr');
+  var pGet = function(r,c){ return parseInt(ptRows[r]&&ptRows[r].querySelectorAll('input')[c]?ptRows[r].querySelectorAll('input')[c].value:0)||0; };
+  var personel = {
+    ogretmenK:pGet(0,0),ogretmenKS:pGet(0,1),memuK:pGet(1,0),memuKS:pGet(1,1),
+    hizmetliK:pGet(2,0),hizmetliKS:pGet(2,1),guvenlikK:pGet(3,0),guvenlikKS:pGet(3,1),
+    digerK:pGet(4,0),digerKS:pGet(4,1),
+    ogrenci:parseInt(document.getElementById('ogrenciSayi').value)||0,
+    cirak:parseInt(document.getElementById('cirakSayi').value)||0
+  };
+
+  var formData = {
+    action:'submitForm', zaman:new Date().toISOString(), okulAdi:okulAdi,
+    okulAdres:document.getElementById('okulAdres').value||'',
+    mudurAdi:document.getElementById('mudurAdi').value||'',
+    mudurTel:document.getElementById('mudurTel').value||'',
+    tehlikeSinifi:selectedTehlike||'Az Tehlikeli',
+    denetimTarihi:document.getElementById('denetimTarihi').value,
+    tespitler:document.getElementById('tespitler').value||'',
+    denetciAdi:denetciAdi,
+    imzaMudur:document.getElementById('imzaMudur').value||'',
+    answers:Object.assign({},answers),
+    photos:JSON.parse(JSON.stringify(photos)),
+    uygunsuzSayi:hayir+eksik, personel:personel
+  };
+
+  document.getElementById('sending').classList.add('show');
+  document.getElementById('sendingMsg').textContent = 'Kaydediliyor...';
+  var docUrl='', msg='';
+
+  try {
+    var resp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(formData)
+    });
+    var text = await resp.text();
+    try {
+      var data = JSON.parse(text);
+      if (data.status==='OK') { docUrl=data.docUrl||''; msg='Denetim kaydedildi ve rapor olusturuldu.'; }
+      else { msg='Hata: '+(data.mesaj||'Bilinmeyen'); }
+    } catch(pe) { msg='Gonderildi (yanit okunamadi).'; }
+  } catch(e) { msg='Baglanti hatasi: '+e.message; }
+
+  document.getElementById('sending').classList.remove('show');
+  document.getElementById('step9').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  document.getElementById('bnav').style.display = 'none';
+  document.getElementById('successLinks').innerHTML = docUrl ? '<a class="s-link s-doc" href="'+docUrl+'" target="_blank">Raporu Ac</a>' : '';
+  document.getElementById('successMsg').innerHTML = msg;
+  toast('Kaydedildi', 't-ok');
+}
+
+function yeniDenetimBaslat() {
+  Object.keys(answers).forEach(function(k){delete answers[k];});
+  Object.keys(photos).forEach(function(k){delete photos[k];});
+  document.querySelectorAll('.mcheck.sel').forEach(function(el){el.classList.remove('sel');});
+  document.querySelectorAll('.foto-alan').forEach(function(el){el.remove();});
+  ['okulAdi','mudurAdi','mudurTel','okulAdres','tespitler','imzaMudur'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('okulSec').value='';
+  document.querySelectorAll('.dbtn').forEach(function(b){b.className='dbtn';});
+  selectedTehlike='';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('step9').style.display='';
+  document.getElementById('bnav').style.display='';
+  currentStep=0; updateUI();
+  document.getElementById('denetimTarihi').value=new Date().toISOString().split('T')[0];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function okulSecimChanged() {
+  var sel=document.getElementById('okulSec');
+  var idx=parseInt(sel.value);
+  if(isNaN(idx)||!okulListesi[idx])return;
+  var o=okulListesi[idx];
+  document.getElementById('okulAdi').value=o.ad||'';
+  if(o.mudur)document.getElementById('mudurAdi').value=o.mudur;
+  if(o.tel)document.getElementById('mudurTel').value=o.tel;
+  if(o.adres)document.getElementById('okulAdres').value=o.adres;
+  var prev=document.getElementById('okulInfoPreview');
+  if(prev){prev.innerHTML='<div class="okul-info-row"><span class="oip-lbl">Tur:</span><span>'+(o.tur||'—')+'</span></div><div class="okul-info-row"><span class="oip-lbl">Mudur:</span><span>'+(o.mudur||'—')+'</span></div>';prev.classList.add('show');}
+}
+
+async function okulListesiYukle() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    var url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?')>=0?'&':'?') + 'action=getOkulListesi&callback=_okulCb&t=' + Date.now();
+    await new Promise(function(resolve) {
+      window._okulCb = function(data) {
+        if (data && data.status==='OK' && Array.isArray(data.okullar)) {
+          okulListesi = data.okullar;
+          var sel = document.getElementById('okulSec');
+          sel.innerHTML = '<option value="">-- ' + okulListesi.length + ' okul --</option>';
+          okulListesi.forEach(function(o,i){ sel.innerHTML += '<option value="'+i+'">' + o.ad + (o.tur?' ('+o.tur+')':'') + '</option>'; });
+          toast(okulListesi.length + ' okul yuklendi', 't-ok');
+        }
+        delete window._okulCb;
+        resolve();
+      };
+      var s = document.createElement('script');
+      s.src = url;
+      document.head.appendChild(s);
+    });
+  } catch(e) { console.log('Okul listesi yuklenemedi:', e); }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildForms();
+  document.getElementById('denetimTarihi').value = new Date().toISOString().split('T')[0];
+  updateUI();
+  cfgBaslat();
+});
+</script>
+</body>
+</html>
