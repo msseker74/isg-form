@@ -232,7 +232,7 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 </div>
 
 <!-- ═══ BAĞLANTI BARI ═══ -->
-<div class="cfg-bar" id="cfgBar">
+<div class="cfg-bar" id="cfgBar" style="display:none">
   <label id="cfgLbl">Baglanti:</label>
   <input type="text" id="cfgInput" placeholder="Apps Script URL yapistirin">
   <button onclick="cfgKaydet()">Kaydet</button>
@@ -362,8 +362,8 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 
 <script>
 // ═══ BAĞLANTI ═══
-var APPS_SCRIPT_URL = '';
-try { APPS_SCRIPT_URL = localStorage.getItem('ISG_FORM_URL') || ''; } catch(e) {}
+// *** APPS SCRIPT URL — degistirmek icin asagidaki URL'yi guncelleyin ***
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxasisaYKzjht_4CC--Z_yrwWxsD8KtcxJUMkAO3ASkLnCtH60WYINy5886OsaS03ai/exec';
 
 function cfgKaydet() {
   var v = document.getElementById('cfgInput').value.trim();
@@ -382,12 +382,12 @@ function cfgKaydet() {
 
 function cfgBaslat() {
   if (APPS_SCRIPT_URL) {
-    document.getElementById('cfgInput').value = APPS_SCRIPT_URL;
-    document.getElementById('cfgBar').classList.add('ok');
-    document.getElementById('cfgLbl').textContent = 'Bagli:';
-    document.getElementById('cfgStatus').className = 'cfg-status cfg-ok';
-    document.getElementById('cfgStatus').textContent = 'Tamam';
+    // URL gomulu, config bar gizli — direkt okul listesi yukle
+    document.getElementById('cfgBar').style.display = 'none';
     setTimeout(okulListesiYukle, 300);
+  } else {
+    // URL yoksa bar'i goster
+    document.getElementById('cfgBar').style.display = 'flex';
   }
 }
 
