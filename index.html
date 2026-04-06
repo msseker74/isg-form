@@ -416,7 +416,8 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 // ═══ APPS SCRIPT URL ═══
 let APPS_SCRIPT_URL = '%%WEB_APP_URL%%';
 if (APPS_SCRIPT_URL.indexOf('%%') !== -1 || !APPS_SCRIPT_URL) {
-  APPS_SCRIPT_URL = '';
+  // Apps Script inject etmediyse localStorage'dan al (Dashboard ile paylaşımlı)
+  try { APPS_SCRIPT_URL = localStorage.getItem('ISG_APPS_SCRIPT_URL') || ''; } catch(e) { APPS_SCRIPT_URL = ''; }
 }
 
 const MADDELER = {
@@ -936,20 +937,59 @@ function okulSecimChanged() {
 // ═══ OKUL LİSTESİ YÜKLE ═══
 async function okulListesiYukle() {
   if (!APPS_SCRIPT_URL) return;
+  var sel = document.getElementById('okulSec');
+  if (sel) sel.innerHTML = '<option value="">⏳ Okul listesi yükleniyor…</option>';
+
+  var buildUrl = function(action) {
+    return APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'action=' + action + '&t=' + Date.now();
+  };
+
+  var jsonpFetchLocal = function(url) {
+    return new Promise(function(resolve, reject) {
+      var cbName = '__okulCb_' + Date.now();
+      var script = document.createElement('script');
+      var done = false;
+      var timer = setTimeout(function() {
+        if (!done) { done = true; delete window[cbName]; script.remove(); reject(new Error('Zaman aşımı')); }
+      }, 12000);
+      window[cbName] = function(data) {
+        if (!done) { done = true; clearTimeout(timer); delete window[cbName]; script.remove(); resolve(data); }
+      };
+      script.onerror = function() {
+        if (!done) { done = true; clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('Script hatası')); }
+      };
+      script.src = url + '&callback=' + cbName;
+      document.head.appendChild(script);
+    });
+  };
+
   try {
-    var url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'action=getOkulListesi&t=' + Date.now();
-    var resp = await fetch(url, { method:'GET', redirect:'follow' });
-    var data = JSON.parse(await resp.text());
-    if (data.status === 'OK' && Array.isArray(data.okullar)) {
+    var data = null;
+    try {
+      var resp = await fetch(buildUrl('getOkulListesi'), { method:'GET', redirect:'follow' });
+      if (resp.ok) {
+        try { data = JSON.parse(await resp.text()); } catch(pe) { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
+      } else { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
+    } catch(fe) { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
+
+    if (data && data.status === 'OK' && Array.isArray(data.okullar)) {
       okulListesi = data.okullar;
-      var sel = document.getElementById('okulSec');
-      sel.innerHTML = '<option value="">— Listeden seçin (' + okulListesi.length + ' okul) —</option>';
-      okulListesi.forEach(function(o, i) {
-        sel.innerHTML += '<option value="' + i + '">' + o.ad + (o.tur ? ' (' + o.tur + ')' : '') + '</option>';
-      });
+      if (sel) {
+        sel.innerHTML = '<option value="">— Listeden seçin (' + okulListesi.length + ' okul) —</option>';
+        okulListesi.forEach(function(o, i) {
+          var opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = o.ad + (o.tur ? ' (' + o.tur + ')' : '');
+          sel.appendChild(opt);
+        });
+      }
+      if (typeof toast === 'function') toast('✅ ' + okulListesi.length + ' okul yüklendi', 't-ok');
+    } else {
+      if (sel) sel.innerHTML = '<option value="">— Liste yüklenemedi, manuel girin —</option>';
     }
   } catch(e) {
     console.log('Okul listesi yüklenemedi:', e);
+    if (sel) sel.innerHTML = '<option value="">— Bağlantı hatası, manuel girin —</option>';
   }
 }
 
