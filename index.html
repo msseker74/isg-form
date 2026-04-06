@@ -169,6 +169,27 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .okul-info-row{display:flex;gap:8px;margin-bottom:3px}
 .oip-lbl{font-weight:700;min-width:90px}
 
+/* ═══ URL BAĞLANTI BARI ═══ */
+.url-bar{
+  background:rgba(251,191,36,.08);border-bottom:2px solid rgba(251,191,36,.3);
+  padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.url-bar.connected{background:rgba(45,158,107,.08);border-color:rgba(45,158,107,.3);}
+.url-bar-lbl{font-size:11px;font-weight:700;color:#f4a100;white-space:nowrap;}
+.url-bar.connected .url-bar-lbl{color:#2d9e6b;}
+.url-bar-inp{
+  flex:1;min-width:220px;padding:5px 10px;border-radius:7px;
+  border:1px solid rgba(251,191,36,.4);background:rgba(255,255,255,.9);
+  color:#1a2535;font-size:11px;font-family:Arial,sans-serif;outline:none;
+}
+.url-bar.connected .url-bar-inp{border-color:rgba(45,158,107,.4);}
+.url-bar-inp:focus{border-color:#f4a100;}
+.url-bar.connected .url-bar-inp:focus{border-color:#2d9e6b;}
+.url-bar-btn{padding:5px 12px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;white-space:nowrap;}
+.url-bar-save{background:#f4a100;color:#fff;}
+.url-bar-status{font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;}
+.url-bar-status.ok{background:rgba(45,158,107,.15);color:#2d9e6b;}
+.url-bar-status.warn{background:rgba(251,191,36,.15);color:#f4a100;}
 /* ═══ TOAST ═══ */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -250,6 +271,16 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 <div class="denetci-bar">
   <label>👤 Denetçi Adı Soyadı:</label>
   <input type="text" id="denetciAdi" placeholder="Ad Soyad giriniz">
+</div>
+
+<!-- ═══ URL BAĞLANTI BARI ═══ -->
+<div class="url-bar" id="urlBar">
+  <span class="url-bar-lbl" id="urlBarLbl">⚙️ Apps Script Bağlantısı:</span>
+  <input class="url-bar-inp" id="urlBarInp" type="text"
+    placeholder="https://script.google.com/macros/s/.../exec"
+    oninput="urlBarDegisti()">
+  <button class="url-bar-btn url-bar-save" onclick="urlBarKaydet()">💾 Kaydet & Bağlan</button>
+  <span class="url-bar-status warn" id="urlBarStatus">⚠️ URL Girilmedi</span>
 </div>
 
 <!-- ═══ İLERLEME BARI ═══ -->
@@ -416,8 +447,54 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 // ═══ APPS SCRIPT URL ═══
 let APPS_SCRIPT_URL = '%%WEB_APP_URL%%';
 if (APPS_SCRIPT_URL.indexOf('%%') !== -1 || !APPS_SCRIPT_URL) {
-  // Apps Script inject etmediyse localStorage'dan al (Dashboard ile paylaşımlı)
+  // 1) localStorage'dan al (Dashboard ile paylaşımlı)
   try { APPS_SCRIPT_URL = localStorage.getItem('ISG_APPS_SCRIPT_URL') || ''; } catch(e) { APPS_SCRIPT_URL = ''; }
+}
+
+// URL bar yönetimi
+function _urlBarGuncelle() {
+  var bar    = document.getElementById('urlBar');
+  var lbl    = document.getElementById('urlBarLbl');
+  var inp    = document.getElementById('urlBarInp');
+  var status = document.getElementById('urlBarStatus');
+  if (!bar) return;
+  if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith('https://')) {
+    bar.className    = 'url-bar connected';
+    lbl.textContent  = '✅ Sheets Bağlı:';
+    status.className = 'url-bar-status ok';
+    status.textContent = '✅ Bağlandı';
+    if (inp) inp.value = APPS_SCRIPT_URL;
+    bar.style.display = 'none'; // Bağlıysa barı gizle
+  } else {
+    bar.className    = 'url-bar';
+    lbl.textContent  = '⚙️ Apps Script Bağlantısı:';
+    status.className = 'url-bar-status warn';
+    status.textContent = '⚠️ URL Girilmedi';
+    bar.style.display = 'flex'; // Bağlı değilse göster
+  }
+}
+
+function urlBarDegisti() {
+  var status = document.getElementById('urlBarStatus');
+  if (status) { status.className = 'url-bar-status warn'; status.textContent = '⚠️ Kaydedilmedi'; }
+}
+
+function urlBarKaydet() {
+  var inp = document.getElementById('urlBarInp');
+  if (!inp) return;
+  var url = inp.value.trim();
+  if (!url || !url.startsWith('https://')) {
+    alert('Geçersiz URL — https:// ile başlamalı'); return;
+  }
+  APPS_SCRIPT_URL = url;
+  try { localStorage.setItem('ISG_APPS_SCRIPT_URL', url); } catch(e) {}
+  _urlBarGuncelle();
+  if (typeof toast === 'function') toast('✅ URL kaydedildi, okul listesi yükleniyor…', 't-ok');
+  setTimeout(okulListesiYukle, 300);
+}
+
+function _urlKontrolEt() {
+  _urlBarGuncelle();
 }
 
 const MADDELER = {
@@ -999,8 +1076,12 @@ document.addEventListener('DOMContentLoaded', function() {
   var today = new Date();
   document.getElementById('denetimTarihi').value = today.toISOString().split('T')[0];
   updateUI();
-  // Okul listesini yükle
-  setTimeout(okulListesiYukle, 500);
+  // URL kontrolü — boşsa kullanıcıya sor
+  _urlKontrolEt();
+  // Okul listesini otomatik yükle
+  if (APPS_SCRIPT_URL) {
+    setTimeout(okulListesiYukle, 600);
+  }
 });
 </script>
 </body>
