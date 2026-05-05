@@ -19,7 +19,7 @@
 // ║  3. localStorage'da kayıtlı URL varsa → kullan                   ║
 // ║  4. Hiçbiri yoksa → kullanıcıdan iste                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
-var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
+var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbzKKLlIEx3-n5u0eguUgu1t1w1Rq3JjuUXW_PBDNKv2zLpWkkDcxxJltuv6TGeJiQ/exec';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -967,7 +967,7 @@ function fotoSil(no, idx) {
 
 // ═══ FORM AKIŞI ═══
 function goStep(n) {
-  if (n > currentStep) return;
+  if (n < 0 || n >= TOTAL_STEPS) return;
   currentStep = n; updateUI();
   document.getElementById('fScroll').scrollTo({top:0, behavior:'smooth'});
 }
