@@ -10,7 +10,7 @@
      ║  Uzmanlar bu linki kullanır, veri aynı Sheets'e kaydedilir          ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <script>
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbyELUh0DDTu208kX2El6xPjLEKbPNQD5FwY6tFijdEPqHhoG5N0RtEQfggNqxgzpAKM/exec';
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -53,7 +53,6 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .prog-info{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:11px;color:var(--mut)}
 .pills{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
 .pill{width:28px;height:28px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--mut);cursor:pointer;transition:all .2s}
-.pill:hover{border-color:var(--navy);color:var(--navy)}
 .pill.active{border-color:var(--navy);background:var(--navy);color:#fff}
 .pill.done{border-color:var(--green);background:var(--green);color:#fff}
 
@@ -121,6 +120,21 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .mcheck.eksik.sel{background:#fff8e6;border-color:#f4a100;color:#f4a100}
 .mcheck.gerekmez.sel{background:#e8ecf2;border-color:#9aa5b8;color:#6b7a90}
 
+/* ═══ MADDE NOTU ═══ */
+.madde-not-alan{
+  grid-column:1/-1;margin-top:4px;
+  background:#f0f4fb;border-radius:8px;border:1px solid #c5d4ed;padding:7px 10px;
+}
+.madde-not-alan label{display:block;font-size:10px;font-weight:700;color:#1a4b8c;margin-bottom:4px}
+.madde-not-inp{
+  width:100%;padding:6px 10px;border:1.5px solid #c5d4ed;border-radius:7px;
+  font-size:12px;color:#1a2535;font-family:Arial,sans-serif;background:#fff;
+  outline:none;resize:vertical;min-height:52px;max-height:120px;
+  transition:border-color .2s;
+}
+.madde-not-inp:focus{border-color:#1a4b8c;box-shadow:0 0 0 3px #e8f0fb}
+.madde-not-sayac{font-size:9px;color:#9aa5b8;text-align:right;margin-top:2px}
+
 /* ═══ FOTOĞRAF ═══ */
 .foto-alan{display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:#fffbf0;border-radius:8px;border:1px dashed #f4a100;margin-top:6px;grid-column:1/-1}
 .foto-ekle-btn{background:#fff8e6;border:1.5px solid #f4a100;color:#c47a00;border-radius:7px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
@@ -141,6 +155,82 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .orow:last-child{border:none}
 .olbl{font-size:12px;color:#6b7a90;font-weight:500}
 .oval{font-size:13px;font-weight:700;color:#1a2535}
+
+/* ═══ ÖNİZLEME MODAL ═══ */
+.onizleme-bg{
+  display:none;position:fixed;inset:0;background:rgba(10,15,26,.75);
+  backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px;
+}
+.onizleme-bg.show{display:flex}
+.onizleme-panel{
+  width:100%;max-width:760px;max-height:88vh;
+  background:#fff;border-radius:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.onizleme-head{
+  padding:14px 20px;border-bottom:1px solid #e8ecf2;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,#1a4b8c,#2355a0);color:#fff;flex-shrink:0;
+}
+.onizleme-head h2{font-size:14px;font-weight:800;font-family:'Arial Black',Arial,sans-serif}
+.onizleme-head p{font-size:11px;opacity:.8;margin-top:2px}
+.onizleme-kapat{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;
+  width:30px;height:30px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.onizleme-body{flex:1;overflow-y:auto;padding:16px 20px}
+.onizleme-info{
+  background:#e8f0fb;border-radius:10px;padding:10px 14px;margin-bottom:14px;
+  font-size:12px;color:#1a4b8c;font-weight:600;
+}
+.onizleme-bolum{margin-bottom:14px}
+.onizleme-bolum-baslik{
+  font-size:11px;font-weight:800;color:#1a4b8c;text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.onizleme-uyg-kart{
+  background:#fafbfd;border:1px solid #e8ecf2;border-radius:10px;
+  padding:10px 12px;margin-bottom:8px;
+}
+.onizleme-uyg-baslik{font-size:12px;font-weight:700;color:#1a2535;margin-bottom:4px}
+.onizleme-uyg-durum{font-size:11px;font-weight:700;
+  display:inline-block;padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.onizleme-uyg-durum.hayir{background:#fdecea;color:#e63946}
+.onizleme-uyg-durum.eksik{background:#fff8e6;color:#f4a100}
+.onizleme-not-grup{margin-top:6px}
+.onizleme-not-lbl{font-size:10px;font-weight:700;color:#6b7a90;margin-bottom:3px}
+.onizleme-not-txt{
+  width:100%;padding:7px 10px;border:1.5px solid #d0d9e8;border-radius:7px;
+  font-size:12px;color:#1a2535;font-family:Arial,sans-serif;background:#fff;
+  resize:vertical;min-height:48px;max-height:100px;outline:none;
+  transition:border-color .2s;
+}
+.onizleme-not-txt:focus{border-color:#1a4b8c;box-shadow:0 0 0 3px #e8f0fb}
+.onizleme-genel{
+  margin-top:6px;
+}
+.onizleme-genel-lbl{font-size:11px;font-weight:700;color:#1a2535;margin-bottom:4px;display:block}
+.onizleme-genel-txt{
+  width:100%;padding:8px 12px;border:1.5px solid #d0d9e8;border-radius:8px;
+  font-size:12px;color:#1a2535;font-family:Arial,sans-serif;background:#fff;
+  resize:vertical;min-height:64px;outline:none;transition:border-color .2s;
+}
+.onizleme-genel-txt:focus{border-color:#1a4b8c;box-shadow:0 0 0 3px #e8f0fb}
+.onizleme-footer{
+  padding:12px 20px;border-top:1px solid #e8ecf2;
+  display:flex;gap:8px;background:#fafbfd;flex-shrink:0;
+}
+.onizleme-footer button{
+  flex:1;padding:12px;border-radius:11px;font-weight:700;
+  font-size:13px;cursor:pointer;border:none;font-family:Arial,sans-serif;transition:all .2s;
+}
+.btn-onizleme-iptal{background:#e8ecf2;color:#6b7a90}
+.btn-onizleme-iptal:hover{background:#d0d9e8}
+.btn-onizleme-gonder{
+  background:linear-gradient(135deg,#1a4b8c,#2d9e6b);color:#fff;
+  box-shadow:0 3px 10px rgba(45,158,107,.3);
+}
+.btn-onizleme-gonder:hover{opacity:.92}
+.btn-onizleme-gonder:disabled{opacity:.6;cursor:not-allowed}
 
 /* ═══ NAVİGASYON ═══ */
 .bnav{position:sticky;bottom:0;background:#fff;border-top:1px solid #e8ecf2;padding:10px 14px;display:flex;gap:8px;box-shadow:0 -4px 20px rgba(26,75,140,.1);z-index:50}
@@ -169,27 +259,6 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .okul-info-row{display:flex;gap:8px;margin-bottom:3px}
 .oip-lbl{font-weight:700;min-width:90px}
 
-/* ═══ URL BAĞLANTI BARI ═══ */
-.url-bar{
-  background:rgba(251,191,36,.08);border-bottom:2px solid rgba(251,191,36,.3);
-  padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-}
-.url-bar.connected{background:rgba(45,158,107,.08);border-color:rgba(45,158,107,.3);}
-.url-bar-lbl{font-size:11px;font-weight:700;color:#f4a100;white-space:nowrap;}
-.url-bar.connected .url-bar-lbl{color:#2d9e6b;}
-.url-bar-inp{
-  flex:1;min-width:220px;padding:5px 10px;border-radius:7px;
-  border:1px solid rgba(251,191,36,.4);background:rgba(255,255,255,.9);
-  color:#1a2535;font-size:11px;font-family:Arial,sans-serif;outline:none;
-}
-.url-bar.connected .url-bar-inp{border-color:rgba(45,158,107,.4);}
-.url-bar-inp:focus{border-color:#f4a100;}
-.url-bar.connected .url-bar-inp:focus{border-color:#2d9e6b;}
-.url-bar-btn{padding:5px 12px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;white-space:nowrap;}
-.url-bar-save{background:#f4a100;color:#fff;}
-.url-bar-status{font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;}
-.url-bar-status.ok{background:rgba(45,158,107,.15);color:#2d9e6b;}
-.url-bar-status.warn{background:rgba(251,191,36,.15);color:#f4a100;}
 /* ═══ TOAST ═══ */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
@@ -271,16 +340,6 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 <div class="denetci-bar">
   <label>👤 Denetçi Adı Soyadı:</label>
   <input type="text" id="denetciAdi" placeholder="Ad Soyad giriniz">
-</div>
-
-<!-- ═══ URL BAĞLANTI BARI ═══ -->
-<div class="url-bar" id="urlBar">
-  <span class="url-bar-lbl" id="urlBarLbl">⚙️ Apps Script Bağlantısı:</span>
-  <input class="url-bar-inp" id="urlBarInp" type="text"
-    placeholder="https://script.google.com/macros/s/.../exec"
-    oninput="urlBarDegisti()">
-  <button class="url-bar-btn url-bar-save" onclick="urlBarKaydet()">💾 Kaydet & Bağlan</button>
-  <span class="url-bar-status warn" id="urlBarStatus">⚠️ URL Girilmedi</span>
 </div>
 
 <!-- ═══ İLERLEME BARI ═══ -->
@@ -411,6 +470,26 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
 </div><!-- /f-body -->
 
+<!-- ═══ ÖNİZLEME MODAL ═══ -->
+<div class="onizleme-bg" id="onizlemeBg">
+  <div class="onizleme-panel">
+    <div class="onizleme-head">
+      <div>
+        <h2>📋 Denetim Önizleme &amp; Düzenleme</h2>
+        <p>Kaydedilmeden önce notları düzenleyin ve kontrol edin</p>
+      </div>
+      <button class="onizleme-kapat" onclick="onizlemeKapat()">✕</button>
+    </div>
+    <div class="onizleme-body" id="onizlemeBody">
+      <!-- JS ile doldurulur -->
+    </div>
+    <div class="onizleme-footer">
+      <button class="btn-onizleme-iptal" onclick="onizlemeKapat()">← Forma Dön</button>
+      <button class="btn-onizleme-gonder" id="btnOnizlemeGonder" onclick="onizlemeGonder()">🚀 Onayla ve Gönder</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ ALT NAVİGASYON ═══ -->
 <div class="bnav" id="bnav">
   <button class="btn-prev" id="btnPrev" onclick="prevStep()" style="display:none">← Geri</button>
@@ -445,56 +524,9 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 // ╚══════════════════════════════════════════════════════════════════════╝
 
 // ═══ APPS SCRIPT URL ═══
-let APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgvM3lYJ-l1_TN4vQqjhEiLp4mlnx_FWHmAZ0l81D3iM3n6UJKsljRb4gjXOyMkds/exec';
+let APPS_SCRIPT_URL = '%%WEB_APP_URL%%';
 if (APPS_SCRIPT_URL.indexOf('%%') !== -1 || !APPS_SCRIPT_URL) {
-  // 1) localStorage'dan al (Dashboard ile paylaşımlı)
-  try { APPS_SCRIPT_URL = localStorage.getItem('ISG_APPS_SCRIPT_URL') || ''; } catch(e) { APPS_SCRIPT_URL = ''; }
-}
-
-// URL bar yönetimi
-function _urlBarGuncelle() {
-  var bar    = document.getElementById('urlBar');
-  var lbl    = document.getElementById('urlBarLbl');
-  var inp    = document.getElementById('urlBarInp');
-  var status = document.getElementById('urlBarStatus');
-  if (!bar) return;
-  if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.startsWith('https://')) {
-    bar.className    = 'url-bar connected';
-    lbl.textContent  = '✅ Sheets Bağlı:';
-    status.className = 'url-bar-status ok';
-    status.textContent = '✅ Bağlandı';
-    if (inp) inp.value = APPS_SCRIPT_URL;
-    bar.style.display = 'none'; // Bağlıysa barı gizle
-  } else {
-    bar.className    = 'url-bar';
-    lbl.textContent  = '⚙️ Apps Script Bağlantısı:';
-    status.className = 'url-bar-status warn';
-    status.textContent = '⚠️ URL Girilmedi';
-    bar.style.display = 'flex'; // Bağlı değilse göster
-  }
-}
-
-function urlBarDegisti() {
-  var status = document.getElementById('urlBarStatus');
-  if (status) { status.className = 'url-bar-status warn'; status.textContent = '⚠️ Kaydedilmedi'; }
-}
-
-function urlBarKaydet() {
-  var inp = document.getElementById('urlBarInp');
-  if (!inp) return;
-  var url = inp.value.trim();
-  if (!url || !url.startsWith('https://')) {
-    alert('Geçersiz URL — https:// ile başlamalı'); return;
-  }
-  APPS_SCRIPT_URL = url;
-  try { localStorage.setItem('ISG_APPS_SCRIPT_URL', url); } catch(e) {}
-  _urlBarGuncelle();
-  if (typeof toast === 'function') toast('✅ URL kaydedildi, okul listesi yükleniyor…', 't-ok');
-  setTimeout(okulListesiYukle, 300);
-}
-
-function _urlKontrolEt() {
-  _urlBarGuncelle();
+  APPS_SCRIPT_URL = '';
 }
 
 const MADDELER = {
@@ -635,6 +667,7 @@ const KAT_ICO   = {A:'ic-blue',B:'ic-red',C:'ic-yellow',D:'ic-blue',E:'ic-green'
 const KAT_EMOJI = {A:'📁',B:'🚨',C:'⚖️',D:'👥',E:'🎓',F:'🔧',G:'🔥',H:'⚡',I:'🏢'};
 const answers   = {};
 const photos    = {};
+const notes     = {};  // madde no → uzman notu
 const TOTAL_STEPS = 10;
 let currentStep   = 0;
 let selectedTehlike = '';
@@ -688,6 +721,7 @@ function secim(el, no, val) {
   el.classList.add('sel');
   answers[no] = val;
   let fotoDiv = row.querySelector('.foto-alan');
+  let notDiv  = row.querySelector('.madde-not-alan');
   if (val === 'Hayır/Yok' || val === 'Eksik') {
     if (!fotoDiv) {
       fotoDiv = document.createElement('div');
@@ -698,9 +732,32 @@ function secim(el, no, val) {
     }
     fotoDiv.style.display = 'flex';
     _fotoPrevGuncelle(no);
+    // Not alanı
+    if (!notDiv) {
+      notDiv = document.createElement('div');
+      notDiv.className = 'madde-not-alan';
+      notDiv.dataset.no = no;
+      const mevcut = notes[no] || '';
+      notDiv.innerHTML =
+        '<label>📝 Uzman Notu (raporda mevzuat altına eklenecek)</label>' +
+        '<textarea class="madde-not-inp" id="notInp_' + no + '" maxlength="500" ' +
+          'placeholder="Bu uygunsuzlukla ilgili gözlemlerinizi yazın… (max 500 karakter)" ' +
+          'oninput="notGuncelle(' + no + ',this)">' + mevcut + '</textarea>' +
+        '<div class="madde-not-sayac" id="notSayac_' + no + '">' + mevcut.length + ' / 500</div>';
+      row.appendChild(notDiv);
+    }
+    notDiv.style.display = 'block';
   } else {
     if (fotoDiv) fotoDiv.style.display = 'none';
+    if (notDiv)  notDiv.style.display  = 'none';
   }
+}
+
+// ═══ NOT GÜNCELLE ═══
+function notGuncelle(no, el) {
+  notes[no] = el.value;
+  const sayac = document.getElementById('notSayac_' + no);
+  if (sayac) sayac.textContent = el.value.length + ' / 500';
 }
 
 // ═══ FOTOĞRAF YÖNETİMİ ═══
@@ -766,7 +823,7 @@ function fotoSil(no, idx) {
 
 // ═══ FORM AKIŞI ═══
 function goStep(n) {
-  if (n < 0 || n >= TOTAL_STEPS) return;
+  if (n > currentStep) return;
   currentStep = n; updateUI();
   document.getElementById('fScroll').scrollTo({top:0, behavior:'smooth'});
 }
@@ -863,7 +920,7 @@ function okulTuruBulClient(ad) {
   return 'Diğer';
 }
 
-// ═══ FORM GÖNDER ═══
+// ═══ FORM GÖNDER BUTONU → ÖNİZLEME AÇ ═══
 async function formGonder() {
   var okulAdi = (document.getElementById('okulAdi').value || '').trim();
   var secEl = document.getElementById('okulSec');
@@ -873,10 +930,102 @@ async function formGonder() {
   }
   if (!okulAdi) { toast('Lütfen okul adını girin', 't-warn'); return; }
   if (!document.getElementById('denetimTarihi').value) { toast('Lütfen denetim tarihini seçin', 't-warn'); return; }
-
   var denetciAdi = (document.getElementById('denetciAdi').value || '').trim();
   if (!denetciAdi) { toast('Lütfen denetçi adını girin', 't-warn'); return; }
+  // Önizlemeyi aç
+  onizlemeAc();
+}
 
+// ═══ ÖNİZLEME ═══
+function onizlemeAc() {
+  const uygunsuzlar = [];
+  for (var i = 1; i <= 138; i++) {
+    const v = answers[i] || answers[String(i)] || '';
+    if (v === 'Hayır/Yok' || v === 'Eksik') {
+      uygunsuzlar.push({ no: i, cevap: v, not: notes[i] || '' });
+    }
+  }
+
+  const okulAdi    = document.getElementById('okulAdi').value || '—';
+  const tarih      = document.getElementById('denetimTarihi').value || '—';
+  const denetci    = document.getElementById('denetciAdi').value || '—';
+  const mudur      = document.getElementById('mudurAdi').value || '—';
+  const tehlike    = selectedTehlike || '—';
+  const tespitler  = document.getElementById('tespitler').value || '';
+
+  // Madde adlarını bul
+  const maddeAdlari = {};
+  Object.entries(MADDELER).forEach(([kat, data]) => {
+    data.items.forEach(item => { maddeAdlari[item.no] = item.ad; });
+  });
+
+  let html = '<div class="onizleme-info">✏️ Aşağıdaki notları düzenleyebilirsiniz. Onayladıktan sonra rapor oluşturulur ve Sheets\'e kaydedilir.</div>';
+
+  // Özet
+  html += '<div class="onizleme-bolum">'
+    + '<div class="onizleme-bolum-baslik">🏫 Denetim Bilgileri</div>'
+    + '<div style="font-size:12px;color:#1a2535;line-height:2">'
+    + '<b>Okul:</b> ' + okulAdi + ' &nbsp;|&nbsp; <b>Tarih:</b> ' + tarih
+    + ' &nbsp;|&nbsp; <b>Tehlike:</b> ' + tehlike + '<br>'
+    + '<b>Denetçi:</b> ' + denetci + ' &nbsp;|&nbsp; <b>Müdür:</b> ' + mudur
+    + '</div></div>';
+
+  // Uygunsuzluklar
+  if (uygunsuzlar.length > 0) {
+    html += '<div class="onizleme-bolum"><div class="onizleme-bolum-baslik">⚠️ Tespit Edilen Uygunsuzluklar (' + uygunsuzlar.length + ')</div>';
+    uygunsuzlar.forEach(function(u) {
+      const durumSinif = u.cevap === 'Hayır/Yok' ? 'hayir' : 'eksik';
+      html += '<div class="onizleme-uyg-kart">'
+        + '<div class="onizleme-uyg-baslik">Madde ' + u.no + ': ' + (maddeAdlari[u.no] || '') + '</div>'
+        + '<span class="onizleme-uyg-durum ' + durumSinif + '">' + u.cevap + '</span>'
+        + '<div class="onizleme-not-grup">'
+          + '<div class="onizleme-not-lbl">📝 Uzman Notu (raporda mevzuat altına eklenecek):</div>'
+          + '<textarea class="onizleme-not-txt" id="onizNot_' + u.no + '" maxlength="500" '
+            + 'placeholder="Not eklemek için yazın… (isteğe bağlı)">' + _escHtml(u.not) + '</textarea>'
+        + '</div>'
+      + '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="onizleme-bolum"><div style="padding:14px;background:#e6f7f1;border-radius:10px;font-size:12px;color:#2d9e6b;font-weight:600">✅ Uygunsuzluk tespit edilmedi</div></div>';
+  }
+
+  // Genel tespitler
+  html += '<div class="onizleme-bolum">'
+    + '<div class="onizleme-bolum-baslik">📋 Genel Tespitler ve Öneriler</div>'
+    + '<div class="onizleme-genel">'
+      + '<textarea class="onizleme-genel-txt" id="onizTespitler" placeholder="Genel tespitler, özel durumlar, öneriler…">' + _escHtml(tespitler) + '</textarea>'
+    + '</div></div>';
+
+  document.getElementById('onizlemeBody').innerHTML = html;
+  document.getElementById('onizlemeBg').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function onizlemeKapat() {
+  document.getElementById('onizlemeBg').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function _escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══ ÖNİZLEMEDEN GERÇEK GÖNDER ═══
+async function onizlemeGonder() {
+  // Önizleme modalından güncel notları ve tespitleri al
+  document.querySelectorAll('[id^="onizNot_"]').forEach(function(el) {
+    var no = parseInt(el.id.replace('onizNot_', ''));
+    if (!isNaN(no)) notes[no] = el.value;
+  });
+  var tespitlerEl = document.getElementById('onizTespitler');
+  if (tespitlerEl) document.getElementById('tespitler').value = tespitlerEl.value;
+
+  onizlemeKapat();
+
+  // Asıl gönderim
+  var okulAdi = (document.getElementById('okulAdi').value || '').trim();
+  var denetciAdi = (document.getElementById('denetciAdi').value || '').trim();
   var hayir = Object.values(answers).filter(function(v){ return v === 'Hayır/Yok'; }).length;
   var eksik = Object.values(answers).filter(function(v){ return v === 'Eksik'; }).length;
 
@@ -926,6 +1075,7 @@ async function formGonder() {
     imzaMudur:     document.getElementById('imzaMudur').value || '',
     answers:       Object.assign({}, answers),
     photos:        Object.fromEntries ? Object.fromEntries(Object.entries(photos).map(function(e){ return [e[0], e[1]]; })) : {},
+    notes:         Object.assign({}, notes),
     uygunsuzSayi:  hayir + eksik,
     personel:      personel,
   };
@@ -972,6 +1122,7 @@ async function formGonder() {
 function yeniDenetimBaslat() {
   Object.keys(answers).forEach(function(k){ delete answers[k]; });
   Object.keys(photos).forEach(function(k){ delete photos[k]; });
+  Object.keys(notes).forEach(function(k){ delete notes[k]; });
   document.querySelectorAll('.mcheck.sel').forEach(function(el){ el.classList.remove('sel'); });
   document.querySelectorAll('.foto-alan').forEach(function(el){ el.remove(); });
   ['okulAdi','mudurAdi','mudurTel','okulAdres','tespitler','imzaMudur'].forEach(function(id) {
@@ -1014,59 +1165,20 @@ function okulSecimChanged() {
 // ═══ OKUL LİSTESİ YÜKLE ═══
 async function okulListesiYukle() {
   if (!APPS_SCRIPT_URL) return;
-  var sel = document.getElementById('okulSec');
-  if (sel) sel.innerHTML = '<option value="">⏳ Okul listesi yükleniyor…</option>';
-
-  var buildUrl = function(action) {
-    return APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'action=' + action + '&t=' + Date.now();
-  };
-
-  var jsonpFetchLocal = function(url) {
-    return new Promise(function(resolve, reject) {
-      var cbName = '__okulCb_' + Date.now();
-      var script = document.createElement('script');
-      var done = false;
-      var timer = setTimeout(function() {
-        if (!done) { done = true; delete window[cbName]; script.remove(); reject(new Error('Zaman aşımı')); }
-      }, 12000);
-      window[cbName] = function(data) {
-        if (!done) { done = true; clearTimeout(timer); delete window[cbName]; script.remove(); resolve(data); }
-      };
-      script.onerror = function() {
-        if (!done) { done = true; clearTimeout(timer); delete window[cbName]; script.remove(); reject(new Error('Script hatası')); }
-      };
-      script.src = url + '&callback=' + cbName;
-      document.head.appendChild(script);
-    });
-  };
-
   try {
-    var data = null;
-    try {
-      var resp = await fetch(buildUrl('getOkulListesi'), { method:'GET', redirect:'follow' });
-      if (resp.ok) {
-        try { data = JSON.parse(await resp.text()); } catch(pe) { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
-      } else { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
-    } catch(fe) { data = await jsonpFetchLocal(buildUrl('getOkulListesi')); }
-
-    if (data && data.status === 'OK' && Array.isArray(data.okullar)) {
+    var url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?') + 'action=getOkulListesi&t=' + Date.now();
+    var resp = await fetch(url, { method:'GET', redirect:'follow' });
+    var data = JSON.parse(await resp.text());
+    if (data.status === 'OK' && Array.isArray(data.okullar)) {
       okulListesi = data.okullar;
-      if (sel) {
-        sel.innerHTML = '<option value="">— Listeden seçin (' + okulListesi.length + ' okul) —</option>';
-        okulListesi.forEach(function(o, i) {
-          var opt = document.createElement('option');
-          opt.value = i;
-          opt.textContent = o.ad + (o.tur ? ' (' + o.tur + ')' : '');
-          sel.appendChild(opt);
-        });
-      }
-      if (typeof toast === 'function') toast('✅ ' + okulListesi.length + ' okul yüklendi', 't-ok');
-    } else {
-      if (sel) sel.innerHTML = '<option value="">— Liste yüklenemedi, manuel girin —</option>';
+      var sel = document.getElementById('okulSec');
+      sel.innerHTML = '<option value="">— Listeden seçin (' + okulListesi.length + ' okul) —</option>';
+      okulListesi.forEach(function(o, i) {
+        sel.innerHTML += '<option value="' + i + '">' + o.ad + (o.tur ? ' (' + o.tur + ')' : '') + '</option>';
+      });
     }
   } catch(e) {
     console.log('Okul listesi yüklenemedi:', e);
-    if (sel) sel.innerHTML = '<option value="">— Bağlantı hatası, manuel girin —</option>';
   }
 }
 
@@ -1076,12 +1188,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var today = new Date();
   document.getElementById('denetimTarihi').value = today.toISOString().split('T')[0];
   updateUI();
-  // URL kontrolü — boşsa kullanıcıya sor
-  _urlKontrolEt();
-  // Okul listesini otomatik yükle
-  if (APPS_SCRIPT_URL) {
-    setTimeout(okulListesiYukle, 600);
-  }
+  // Okul listesini yükle
+  setTimeout(okulListesiYukle, 500);
 });
 </script>
 </body>
