@@ -10,6 +10,15 @@
      ║  Uzmanlar bu linki kullanır, veri aynı Sheets'e kaydedilir          ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <script>
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  APPS SCRIPT URL ÇÖZÜMLEYICI — GitHub Pages + Apps Script uyumlu ║
+// ║                                                                  ║
+// ║  Öncelik sırası:                                                 ║
+// ║  1. Apps Script doGet tarafından inject edilmişse → doğrudan al  ║
+// ║  2. URL'de ?url= parametresi varsa → kullan ve kaydet            ║
+// ║  3. localStorage'da kayıtlı URL varsa → kullan                   ║
+// ║  4. Hiçbiri yoksa → kullanıcıdan iste                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
 var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
@@ -309,6 +318,56 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
   .foto-ekle-btn{font-size:11px;padding:5px 10px}
 }
 
+/* ═══ URL AYAR PANELİ (GitHub'dan açılınca) ═══ */
+.url-ayar-panel{
+  display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(10,15,26,.88);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.url-ayar-panel.show{display:flex}
+.url-ayar-kart{
+  background:#fff;border-radius:18px;padding:28px 28px 24px;
+  max-width:480px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+.url-ayar-ico{font-size:36px;text-align:center;margin-bottom:10px}
+.url-ayar-baslik{font-size:17px;font-weight:800;color:#1a2535;
+  text-align:center;font-family:'Arial Black',Arial,sans-serif;margin-bottom:6px}
+.url-ayar-aciklama{font-size:12px;color:#6b7a90;line-height:1.7;margin-bottom:16px;text-align:center}
+.url-ayar-aciklama code{
+  display:block;background:#e8f0fb;color:#1a4b8c;padding:6px 10px;
+  border-radius:8px;font-size:11px;margin:8px 0;word-break:break-all;
+  font-family:monospace;text-align:left;
+}
+.url-ayar-inp{
+  width:100%;padding:11px 14px;border:1.5px solid #d0d9e8;border-radius:10px;
+  font-size:13px;color:#1a2535;font-family:Arial,sans-serif;outline:none;
+  margin-bottom:10px;transition:border-color .2s;
+}
+.url-ayar-inp:focus{border-color:#1a4b8c;box-shadow:0 0 0 3px #e8f0fb}
+.url-ayar-inp::placeholder{color:#9aa5b8}
+.url-ayar-btn{
+  width:100%;padding:12px;border-radius:11px;border:none;
+  background:linear-gradient(135deg,#1a4b8c,#2d9e6b);color:#fff;
+  font-size:14px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;
+  margin-bottom:8px;transition:opacity .2s;
+}
+.url-ayar-btn:hover{opacity:.9}
+.url-ayar-not{font-size:10px;color:#9aa5b8;text-align:center;line-height:1.6}
+.url-ayar-not a{color:#1a4b8c}
+
+/* ═══ HEADER BAR — URL göstergesi ═══ */
+.url-gosterge{
+  background:#e8f7f1;border-bottom:1px solid #b7e3cc;
+  padding:5px 16px;font-size:11px;color:#1a5c3a;
+  display:none;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.url-gosterge.show{display:flex}
+.url-gosterge-metin{flex:1;font-family:monospace;font-size:10px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a4b8c}
+.url-gosterge-degistir{background:none;border:none;color:#1a4b8c;
+  font-size:10px;font-weight:700;cursor:pointer;text-decoration:underline;
+  font-family:Arial,sans-serif;white-space:nowrap}
+
 /* ═══ YATAY MOD + PERFORMANS ═══ */
 html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 @media(orientation:landscape) and (max-height:500px){
@@ -326,6 +385,36 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
+
+<!-- ═══ URL AYAR PANELİ — GitHub'dan açılınca gösterilir ═══ -->
+<div class="url-ayar-panel" id="urlAyarPanel">
+  <div class="url-ayar-kart">
+    <div class="url-ayar-ico">⚙️</div>
+    <div class="url-ayar-baslik">Apps Script URL Gerekli</div>
+    <div class="url-ayar-aciklama">
+      Bu form GitHub Pages üzerinden açılıyor. Verilerin Google Sheets'e kaydedilebilmesi için
+      Apps Script web app URL'nizi bir kez girmeniz gerekiyor.<br>
+      URL şu formatta olmalıdır:
+      <code>https://script.google.com/macros/s/AKfy.../exec</code>
+      Girdiğiniz URL tarayıcınıza kaydedilir, bir daha sorulmaz.
+    </div>
+    <input type="url" class="url-ayar-inp" id="urlAyarInput"
+      placeholder="https://script.google.com/macros/s/.../exec"
+      onkeydown="if(event.key==='Enter')urlKaydet()">
+    <button class="url-ayar-btn" onclick="urlKaydet()">✅ Kaydet ve Devam Et</button>
+    <div class="url-ayar-not">
+      URL'yi Apps Script editöründe <strong>Yayınla → Web uygulaması olarak dağıt</strong> menüsünden bulabilirsiniz.<br>
+      <a href="https://github.com/sehitkamilisg/Isg-Saha-Denetim" target="_blank">GitHub sayfasına dön</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ URL GÖSTERGESİ — URL varsa üstte küçük bar ═══ -->
+<div class="url-gosterge" id="urlGosterge">
+  <span>🔗 Bağlı:</span>
+  <span class="url-gosterge-metin" id="urlGostergeMetin"></span>
+  <button class="url-gosterge-degistir" onclick="urlDegistirAc()">Değiştir</button>
+</div>
 
 <!-- ═══ HEADER ═══ -->
 <div class="form-header">
@@ -523,10 +612,65 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 // ║    Satır ~600  │ Sayfa yüklendiğinde (DOMContentLoaded)             ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 
-// ═══ APPS SCRIPT URL ═══
-let APPS_SCRIPT_URL = '%%WEB_APP_URL%%';
-if (APPS_SCRIPT_URL.indexOf('%%') !== -1 || !APPS_SCRIPT_URL) {
+// ═══ APPS SCRIPT URL — AKILLI ÇÖZÜMLEME ═══
+// Apps Script inject ettiyse kullan, yoksa URL param → localStorage → kullanıcıdan iste
+const _LS_KEY = 'ISG_APPS_SCRIPT_URL';
+
+function _urlCoz() {
+  // 1. Apps Script inject
+  if (typeof __WEB_APP_URL__ !== 'undefined' &&
+      __WEB_APP_URL__ && __WEB_APP_URL__.indexOf('%%') === -1) {
+    return __WEB_APP_URL__;
+  }
+  // 2. URL parametresi (?url=https://...)
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlParam = params.get('url') || params.get('apps_url') || params.get('script');
+    if (urlParam && urlParam.startsWith('https://script.google.com')) {
+      try { localStorage.setItem(_LS_KEY, urlParam); } catch(e) {}
+      return urlParam;
+    }
+  } catch(e) {}
+  // 3. localStorage
+  try {
+    const stored = localStorage.getItem(_LS_KEY);
+    if (stored && stored.startsWith('https://')) return stored;
+  } catch(e) {}
+  return '';
+}
+
+let APPS_SCRIPT_URL = _urlCoz();
+
+// URL yoksa sayfa yüklendikten sonra ayar paneli göster
+function _urlKontrol() {
+  if (APPS_SCRIPT_URL) return;
+  const panel = document.getElementById('urlAyarPanel');
+  if (panel) panel.classList.add('show');
+}
+
+function urlKaydet() {
+  const inp = document.getElementById('urlAyarInput');
+  if (!inp) return;
+  const val = (inp.value || '').trim();
+  if (!val.startsWith('https://script.google.com')) {
+    alert('Geçerli bir Apps Script URL\'si girin.\nhttps://script.google.com/macros/s/... ile başlamalıdır.');
+    return;
+  }
+  try { localStorage.setItem(_LS_KEY, val); } catch(e) {}
+  APPS_SCRIPT_URL = val;
+  const panel = document.getElementById('urlAyarPanel');
+  if (panel) panel.classList.remove('show');
+  toast('✅ URL kaydedildi, yükleniyor…', 't-ok');
+  setTimeout(function() {
+    okulListesiYukle();
+    buildForms();
+  }, 400);
+}
+
+function urlSifirla() {
+  try { localStorage.removeItem(_LS_KEY); } catch(e) {}
   APPS_SCRIPT_URL = '';
+  location.reload();
 }
 
 const MADDELER = {
@@ -1188,9 +1332,25 @@ document.addEventListener('DOMContentLoaded', function() {
   var today = new Date();
   document.getElementById('denetimTarihi').value = today.toISOString().split('T')[0];
   updateUI();
-  // Okul listesini yükle
-  setTimeout(okulListesiYukle, 500);
+  // URL göstergesi
+  if (APPS_SCRIPT_URL) {
+    var gosterge = document.getElementById('urlGosterge');
+    var metin    = document.getElementById('urlGostergeMetin');
+    if (gosterge) gosterge.classList.add('show');
+    if (metin)    metin.textContent = APPS_SCRIPT_URL;
+    setTimeout(okulListesiYukle, 500);
+  } else {
+    // URL yoksa ayar panelini göster
+    setTimeout(_urlKontrol, 300);
+  }
 });
+
+function urlDegistirAc() {
+  var inp = document.getElementById('urlAyarInput');
+  if (inp) inp.value = APPS_SCRIPT_URL || '';
+  var panel = document.getElementById('urlAyarPanel');
+  if (panel) panel.classList.add('show');
+}
 </script>
 </body>
 </html>
