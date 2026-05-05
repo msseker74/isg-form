@@ -863,21 +863,23 @@ function secim(el, no, val) {
     }
     fotoDiv.style.display = 'flex';
     _fotoPrevGuncelle(no);
-    // Not alanı
+    // Not alanı — grid-column inline olarak verilmeli
     if (!notDiv) {
       notDiv = document.createElement('div');
       notDiv.className = 'madde-not-alan';
       notDiv.dataset.no = no;
+      notDiv.style.cssText = 'grid-column:1/-1;display:block;width:100%;margin-top:4px;background:#f0f4fb;border-radius:8px;border:1px solid #c5d4ed;padding:7px 10px;box-sizing:border-box;';
       const mevcut = notes[no] || '';
       notDiv.innerHTML =
-        '<label>📝 Uzman Notu (raporda mevzuat altına eklenecek)</label>' +
-        '<textarea class="madde-not-inp" id="notInp_' + no + '" maxlength="500" ' +
+        '<label style="display:block;font-size:10px;font-weight:700;color:#1a4b8c;margin-bottom:4px">📝 Uzman Notu (raporda mevzuat altına eklenecek)</label>' +
+        '<textarea style="width:100%;padding:6px 10px;border:1.5px solid #c5d4ed;border-radius:7px;font-size:12px;color:#1a2535;font-family:Arial,sans-serif;background:#fff;outline:none;resize:vertical;min-height:52px;max-height:120px;box-sizing:border-box;" id="notInp_' + no + '" maxlength="500" ' +
           'placeholder="Bu uygunsuzlukla ilgili gözlemlerinizi yazın… (max 500 karakter)" ' +
           'oninput="notGuncelle(' + no + ',this)">' + mevcut + '</textarea>' +
-        '<div class="madde-not-sayac" id="notSayac_' + no + '">' + mevcut.length + ' / 500</div>';
+        '<div style="font-size:9px;color:#9aa5b8;text-align:right;margin-top:2px" id="notSayac_' + no + '">' + mevcut.length + ' / 500</div>';
       row.appendChild(notDiv);
+    } else {
+      notDiv.style.display = 'block';
     }
-    notDiv.style.display = 'block';
   } else {
     if (fotoDiv) fotoDiv.style.display = 'none';
     if (notDiv)  notDiv.style.display  = 'none';
