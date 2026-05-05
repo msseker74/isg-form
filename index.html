@@ -10,16 +10,9 @@
      ║  Uzmanlar bu linki kullanır, veri aynı Sheets'e kaydedilir          ║
      ╚══════════════════════════════════════════════════════════════════════╝ -->
 <script>
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  APPS SCRIPT URL ÇÖZÜMLEYICI — GitHub Pages + Apps Script uyumlu ║
-// ║                                                                  ║
-// ║  Öncelik sırası:                                                 ║
-// ║  1. Apps Script doGet tarafından inject edilmişse → doğrudan al  ║
-// ║  2. URL'de ?url= parametresi varsa → kullan ve kaydet            ║
-// ║  3. localStorage'da kayıtlı URL varsa → kullan                   ║
-// ║  4. Hiçbiri yoksa → kullanıcıdan iste                            ║
-// ╚══════════════════════════════════════════════════════════════════╝
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbzKKLlIEx3-n5u0eguUgu1t1w1Rq3JjuUXW_PBDNKv2zLpWkkDcxxJltuv6TGeJiQ/exec';
+// Apps Script Web App inject — doGet tarafından string replace ile doldurulur
+// GitHub'dan açılınca %%WEB_APP_URL%% kalır → aşağıdaki resolver devreye girer
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -612,12 +605,12 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 // ║    Satır ~600  │ Sayfa yüklendiğinde (DOMContentLoaded)             ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 
-// ═══ APPS SCRIPT URL — AKILLI ÇÖZÜMLEME ═══
-// Apps Script inject ettiyse kullan, yoksa URL param → localStorage → kullanıcıdan iste
+// ═══ APPS SCRIPT URL — SABİT GÖMÜLÜ + AKILLI ÇÖZÜMLEME ═══
+const _GOMULU_URL = 'https://script.google.com/macros/s/AKfycbyNCaJ-6EqO1C558AS2zAvz_WmNhjHE-PYDO7es7PxqW_e7ATC6qRCwe8cjs1OBJKmh/exec';
 const _LS_KEY = 'ISG_APPS_SCRIPT_URL';
 
 function _urlCoz() {
-  // 1. Apps Script inject
+  // 1. Apps Script doGet inject (%%...%% replace ile)
   if (typeof __WEB_APP_URL__ !== 'undefined' &&
       __WEB_APP_URL__ && __WEB_APP_URL__.indexOf('%%') === -1) {
     return __WEB_APP_URL__;
@@ -636,17 +629,14 @@ function _urlCoz() {
     const stored = localStorage.getItem(_LS_KEY);
     if (stored && stored.startsWith('https://')) return stored;
   } catch(e) {}
-  return '';
+  // 4. Kodda gömülü URL — her zaman çalışır
+  return _GOMULU_URL;
 }
 
 let APPS_SCRIPT_URL = _urlCoz();
 
-// URL yoksa sayfa yüklendikten sonra ayar paneli göster
-function _urlKontrol() {
-  if (APPS_SCRIPT_URL) return;
-  const panel = document.getElementById('urlAyarPanel');
-  if (panel) panel.classList.add('show');
-}
+// Gömülü URL olduğu için ayar paneli hiç açılmaz
+function _urlKontrol() { /* gömülü URL var — panel gerekmez */ }
 
 function urlKaydet() {
   const inp = document.getElementById('urlAyarInput');
@@ -660,16 +650,13 @@ function urlKaydet() {
   APPS_SCRIPT_URL = val;
   const panel = document.getElementById('urlAyarPanel');
   if (panel) panel.classList.remove('show');
-  toast('✅ URL kaydedildi, yükleniyor…', 't-ok');
-  setTimeout(function() {
-    okulListesiYukle();
-    buildForms();
-  }, 400);
+  toast('✅ URL kaydedildi', 't-ok');
+  setTimeout(function() { okulListesiYukle(); }, 400);
 }
 
 function urlSifirla() {
   try { localStorage.removeItem(_LS_KEY); } catch(e) {}
-  APPS_SCRIPT_URL = '';
+  APPS_SCRIPT_URL = _GOMULU_URL;
   location.reload();
 }
 
